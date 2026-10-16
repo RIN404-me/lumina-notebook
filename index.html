@@ -930,9 +930,272 @@
                 </div>
             </div>
 
+            <!-- Custom Firebase Config for Vercel / GitHub Pages -->
+            <div class="pt-3 border-t border-theme space-y-2">
+                <label class="text-xs font-semibold block">🔥 Optional: Connect Your Free Firebase Cloud (For Vercel)</label>
+                <p class="text-[11px] text-secondary-theme leading-relaxed">
+                    By default on Vercel, your data saves automatically to your browser's local storage. To sync across devices, paste your free Firebase Web App config JSON object below:
+                </p>
+                <textarea id="custom-firebase-config" rows="3" placeholder='{"apiKey": "...", "projectId": "...", "appId": "..."}' class="w-full rounded-xl p-2.5 text-[11px] font-mono input-cozy resize-none"></textarea>
+                <div class="flex justify-end gap-2">
+                    <button onclick="clearCustomFirebaseConfig()" class="px-3 py-1.5 rounded-xl bg-secondary-theme text-xs font-medium">Use Local Only</button>
+                    <button onclick="saveCustomFirebaseConfig()" class="px-3.5 py-1.5 rounded-xl btn-accent text-xs font-semibold">Save & Connect Cloud</button>
+                </div>
+            </div>
+
             <div class="pt-3 border-t border-theme flex items-center justify-between">
                 <span class="text-xs text-muted-theme">Restore default sample data?</span>
                 <button onclick="resetToSampleData()" class="text-xs font-semibold text-red-500 hover:underline">Reset Demo Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Subjects Modal -->
+    <div id="modal-subjects" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="surface-elevated rounded-3xl max-w-md w-full p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-serif text-xl font-semibold">📁 Manage Subjects</h3>
+                <button onclick="closeModal('modal-subjects')" class="p-1.5 rounded-xl hover:bg-secondary-theme">✕</button>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="new-subject-name" placeholder="New subject name..." class="flex-1 rounded-xl px-3 py-2 text-xs input-cozy">
+                <input type="color" id="new-subject-color" value="#D97706" class="w-10 h-9 rounded-xl cursor-pointer border-0 bg-transparent">
+                <button onclick="addSubject()" class="px-4 py-2 rounded-xl btn-accent text-xs font-semibold">Add</button>
+            </div>
+            <div id="subjects-modal-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+
+    <!-- Assignment / Task Modal -->
+    <div id="modal-assignment" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="surface-elevated rounded-3xl max-w-md w-full p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 id="assignment-modal-title" class="font-serif text-xl font-semibold">Add Assignment</h3>
+                <button onclick="closeModal('modal-assignment')" class="p-1.5 rounded-xl hover:bg-secondary-theme">✕</button>
+            </div>
+            <input type="hidden" id="assign-id">
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-semibold block mb-1">Task / Assignment Title</label>
+                    <input type="text" id="assign-title" placeholder="e.g., Lab Report #3" class="w-full rounded-xl px-3.5 py-2 text-sm input-cozy">
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="text-xs font-semibold block mb-1">Subject</label>
+                        <select id="assign-subject" class="w-full rounded-xl px-3 py-2 text-xs font-medium input-cozy"></select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold block mb-1">Priority</label>
+                        <select id="assign-priority" class="w-full rounded-xl px-3 py-2 text-xs font-medium input-cozy">
+                            <option value="High">High</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="text-xs font-semibold block mb-1">Due Date</label>
+                        <input type="date" id="assign-date" class="w-full rounded-xl px-3 py-2 text-xs font-mono input-cozy">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold block mb-1">Status</label>
+                        <select id="assign-status" class="w-full rounded-xl px-3 py-2 text-xs font-medium input-cozy">
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold block mb-1">Notes / Instructions</label>
+                    <textarea id="assign-notes" rows="2" placeholder="Optional details or submission link..." class="w-full rounded-xl p-3 text-xs input-cozy resize-none"></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('modal-assignment')" class="px-4 py-2 rounded-xl bg-secondary-theme text-xs font-semibold">Cancel</button>
+                <button onclick="saveAssignment()" class="px-5 py-2 rounded-xl btn-accent text-xs font-semibold">Save Task</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create / Edit Single Flashcard Modal -->
+    <div id="modal-flashcard" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="surface-elevated rounded-3xl max-w-md w-full p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 id="fc-modal-title" class="font-serif text-xl font-semibold">Create Study Flashcard</h3>
+                <button onclick="closeModal('modal-flashcard')" class="p-1.5 rounded-xl hover:bg-secondary-theme">✕</button>
+            </div>
+            <input type="hidden" id="fc-modal-id">
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-semibold block mb-1">Subject Deck</label>
+                    <select id="fc-modal-subject" class="w-full rounded-xl px-3 py-2 text-xs font-semibold input-cozy"></select>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold block mb-1">Front (Question / Term / Prompt)</label>
+                    <textarea id="fc-modal-question" rows="2" placeholder="Enter question or concept..." class="w-full rounded-xl p-3 text-xs input-cozy resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold block mb-1">Back (Answer / Definition / Explanation)</label>
+                    <textarea id="fc-modal-answer" rows="3" placeholder="Enter the answer..." class="w-full rounded-xl p-3 text-xs input-cozy resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold block mb-1">Optional Hint</label>
+                    <input type="text" id="fc-modal-hint" placeholder="Mnemonic or clue..." class="w-full rounded-xl px-3 py-2 text-xs input-cozy">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('modal-flashcard')" class="px-4 py-2 rounded-xl bg-secondary-theme text-xs font-semibold">Cancel</button>
+                <button onclick="saveFlashcardFromModal()" class="px-5 py-2 rounded-xl btn-accent text-xs font-semibold">Save Flashcard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multi-Source Flashcard Importer Modal -->
+    <div id="modal-flashcard-import" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="surface-elevated rounded-3xl max-w-2xl w-full p-6 space-y-4 my-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-serif text-xl font-semibold">📥 Import Flashcards into Deck</h3>
+                    <p class="text-xs text-secondary-theme">Import from Quizlet/Anki text, CSV/TSV/JSON files, or extract from your Study Notes.</p>
+                </div>
+                <button onclick="closeModal('modal-flashcard-import')" class="p-1.5 rounded-xl hover:bg-secondary-theme">✕</button>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <div class="flex items-center gap-1.5 bg-secondary-theme p-1 rounded-2xl">
+                    <button onclick="switchImportTab('paste')" id="import-tab-paste" class="px-3 py-1.5 rounded-xl text-xs font-semibold btn-accent">📋 Copy & Paste</button>
+                    <button onclick="switchImportTab('file')" id="import-tab-file" class="px-3 py-1.5 rounded-xl text-xs font-medium">📂 Upload File</button>
+                    <button onclick="switchImportTab('notes')" id="import-tab-notes" class="px-3 py-1.5 rounded-xl text-xs font-medium">📓 From My Notes</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold">Target Deck:</span>
+                    <select id="import-target-subject" class="rounded-xl px-3 py-1.5 text-xs font-semibold input-cozy"></select>
+                </div>
+            </div>
+
+            <!-- Tab 1: Paste Text -->
+            <div id="import-pane-paste" class="space-y-2.5">
+                <div class="flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="text-secondary-theme">Separator:</span>
+                        <select id="import-term-sep" onchange="updateImportPreview()" class="rounded-lg px-2 py-1 text-xs input-cozy">
+                            <option value="auto">Auto-Detect (Tab, " - ", " : ", Comma)</option>
+                            <option value="tab">Tab (Quizlet / Anki default)</option>
+                            <option value="dash">Dash (Term - Definition)</option>
+                            <option value="colon">Colon (Term : Definition)</option>
+                            <option value="comma">Comma (CSV)</option>
+                        </select>
+                    </div>
+                    <button onclick="loadSampleImportText()" class="text-xs font-semibold hover:underline" style="color: var(--accent-primary)">✨ Load Sample List</button>
+                </div>
+                <textarea id="import-raw-text" oninput="updateImportPreview()" rows="5" placeholder="Paste one card per line, e.g.:&#10;Mitochondria - Powerhouse of the cell&#10;Osmosis : Movement of water across a semipermeable membrane&#10;HTTP 200	OK Status Code" class="w-full rounded-2xl p-3.5 text-xs font-mono input-cozy resize-none"></textarea>
+            </div>
+
+            <!-- Tab 2: Upload File -->
+            <div id="import-pane-file" class="hidden space-y-3 py-4 text-center border-2 border-dashed border-theme rounded-2xl">
+                <p class="text-xs text-secondary-theme">Upload a <strong>.CSV</strong>, <strong>.TSV</strong>, <strong>.TXT</strong>, or <strong>.JSON</strong> flashcard deck</p>
+                <label class="inline-block px-4 py-2 rounded-xl btn-accent text-xs font-semibold cursor-pointer">
+                    Choose File from Device
+                    <input type="file" accept=".csv,.tsv,.txt,.json" onchange="handleFlashcardFileUpload(event)" class="hidden">
+                </label>
+                <p id="import-file-status" class="text-xs font-mono text-emerald-600"></p>
+            </div>
+
+            <!-- Tab 3: Extract From Study Notes -->
+            <div id="import-pane-notes" class="hidden space-y-2.5">
+                <label class="text-xs font-semibold block">Select a Study Note to Extract Definitions From:</label>
+                <select id="import-source-note" onchange="extractCardsFromSelectedNote()" class="w-full rounded-xl px-3 py-2 text-xs font-semibold input-cozy"></select>
+                <p class="text-[11px] text-muted-theme">Automatically detects bullet points with bold terms or lines formatted as <code>Concept : Definition</code>.</p>
+            </div>
+
+            <!-- Live Staged Preview -->
+            <div class="space-y-2 pt-2 border-t border-theme">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold">Preview Detected Cards (<span id="import-preview-count">0</span>)</span>
+                </div>
+                <div id="import-preview-list" class="space-y-1.5 max-h-44 overflow-y-auto pr-1"></div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('modal-flashcard-import')" class="px-4 py-2 rounded-xl bg-secondary-theme text-xs font-semibold">Cancel</button>
+                <button onclick="confirmFlashcardImport()" class="px-5 py-2 rounded-xl btn-accent text-xs font-semibold">📥 Import Cards Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Class Slot Modal -->
+    <div id="modal-schedule" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="surface-elevated rounded-3xl max-w-md w-full p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-serif text-xl font-semibold">🗓️ Add Class Slot</h3>
+                <button onclick="closeModal('modal-schedule')" class="p-1.5 rounded-xl hover:bg-secondary-theme">✕</button>
+            </div>
+            <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="text-xs font-semibold block mb-1">Day</label>
+                        <select id="sched-day" class="w-full rounded-xl px-3 py-2 text-xs font-semibold input-cozy">
+                            <option value="Mon">Monday</option>
+                            <option value="Tue">Tuesday</option>
+                            <option value="Wed">Wednesday</option>
+                            <option value="Thu">Thursday</option>
+                            <option value="Fri">Friday</option>
+                            <option value="Sat">Saturday</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold block mb-1">Time Slot</label>
+                        <input type="text" id="sched-time" placeholder="08:30 AM - 10:00 AM" class="w-full rounded-xl px-3 py-2 text-xs input-cozy">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-semibold block mb-1">Course Code & Title</label>
+                    <input type="text" id="sched-course" placeholder="e.g., CS 201 — Data Structures" class="w-full rounded-xl px-3 py-2 text-xs input-cozy">
+                </div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="text-xs font-semibold block mb-1">Room / Lab</label>
+                        <input type="text" id="sched-room" placeholder="e.g., Lab 302" class="w-full rounded-xl px-3 py-2 text-xs input-cozy">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold block mb-1">Instructor</label>
+                        <input type="text" id="sched-instructor" placeholder="e.g., Prof. Reyes" class="w-full rounded-xl px-3 py-2 text-xs input-cozy">
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('modal-schedule')" class="px-4 py-2 rounded-xl bg-secondary-theme text-xs font-semibold">Cancel</button>
+                <button onclick="saveScheduleItem()" class="px-5 py-2 rounded-xl btn-accent text-xs font-semibold">Add Class</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resource Link Bookmark Modal -->
+    <div id="modal-link" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="surface-elevated rounded-3xl max-w-md w-full p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-serif text-xl font-semibold">🔖 Add Academic Bookmark</h3>
+                <button onclick="closeModal('modal-link')" class="p-1.5 rounded-xl hover:bg-secondary-theme">✕</button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-semibold block mb-1">Resource Title</label>
+                    <input type="text" id="link-title" placeholder="e.g., University Portal" class="w-full rounded-xl px-3 py-2 text-xs input-cozy">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold block mb-1">Category</label>
+                    <input type="text" id="link-category" placeholder="e.g., Reference Docs / LMS" class="w-full rounded-xl px-3 py-2 text-xs input-cozy">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold block mb-1">URL</label>
+                    <input type="url" id="link-url" placeholder="https://..." class="w-full rounded-xl px-3 py-2 text-xs font-mono input-cozy">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('modal-link')" class="px-4 py-2 rounded-xl bg-secondary-theme text-xs font-semibold">Cancel</button>
+                <button onclick="saveResourceLink()" class="px-5 py-2 rounded-xl btn-accent text-xs font-semibold">Save Link</button>
             </div>
         </div>
     </div>
@@ -945,6 +1208,9 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        const STORAGE_KEY = 'lumina_academic_workspace_v2';
+        const FIREBASE_CFG_KEY = 'lumina_custom_firebase_config';
+
         const ACADEMIC_QUOTES = [
             '"Success is the sum of small efforts, repeated day in and day out." — Robert Collier',
             '"An investment in knowledge pays the best interest." — Benjamin Franklin',
@@ -953,11 +1219,147 @@
             '"Don\'t watch the clock; do what it does. Keep going." — Sam Levenson',
             '"Understanding is deeper than knowledge." — Carl Sagan'
         ];
+        let activeSyncCode = localStorage.getItem('lumina_sync_passcode') || '';
+        let unsubscribeWorkspace = null;
+        let saveDebounceTimeout = null;
+        let lastSavedStamp = '';
 
-        function getRelativeDateStr(offsetDays) {
-            const d = new Date();
-            d.setDate(d.getDate() + offsetDays);
-            return d.toISOString().split('T')[0];
+        function loadInitialLocalState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('lumina_academic_workspace_v1');
+                if (!raw) {
+                    const def = getDefaultState();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(def));
+                    return def;
+                }
+                return { ...getDefaultState(), ...JSON.parse(raw) };
+            } catch (e) {
+                return getDefaultState();
+            }
+        }
+
+        let state = loadInitialLocalState();
+        let currentView = 'dashboard';
+        let activeNoteId = state.notes.length > 0 ? state.notes[0].id : null;
+        let selectedSubjectFilter = 'all';
+        let pinnedOnlyFilter = false;
+        let deadlineStatusFilter = 'all';
+        let currentCardIndex = 0;
+        let stagedImportCards = [];
+
+        // Pomodoro state
+        let pomoTimeLeft = 25 * 60;
+        let pomoTotalTime = 25 * 60;
+        let pomoMode = 'focus';
+        let pomoInterval = null;
+        let pomoRunning = false;
+
+        function setCloudStatusUI(stateType, labelText) {
+            const dots = [
+                document.getElementById('sidebar-cloud-dot'),
+                document.getElementById('mobile-cloud-dot'),
+                document.getElementById('modal-cloud-dot')
+            ];
+            const colorMap = {
+                synced: 'bg-emerald-500',
+                syncing: 'bg-amber-500 animate-pulse',
+                local: 'bg-emerald-500'
+            };
+            dots.forEach(d => {
+                if (!d) return;
+                d.className = `w-2.5 h-2.5 rounded-full ${colorMap[stateType] || 'bg-emerald-500'}`;
+            });
+            const sidebarText = document.getElementById('sidebar-cloud-text');
+            const modalText = document.getElementById('modal-cloud-status');
+            if (sidebarText) sidebarText.textContent = labelText;
+            if (modalText) modalText.textContent = labelText;
+        }
+
+        function getActiveWorkspaceDocRef() {
+            if (!db || !currentUser) return null;
+            if (activeSyncCode) {
+                return doc(db, 'artifacts', appId, 'public', 'data', 'syncedWorkspaces', activeSyncCode);
+            }
+            return doc(db, 'artifacts', appId, 'users', currentUser.uid, 'workspace', 'main');
+        }
+
+        async function initCloudWorkspace() {
+            try {
+                const customCfgRaw = localStorage.getItem(FIREBASE_CFG_KEY);
+                const customInput = document.getElementById('custom-firebase-config');
+                if (customInput && customCfgRaw) customInput.value = customCfgRaw;
+
+                let firebaseConfig = null;
+                if (customCfgRaw) {
+                    firebaseConfig = JSON.parse(customCfgRaw);
+                } else if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    firebaseConfig = typeof __firebase_config === 'string'
+                        ? JSON.parse(__firebase_config)
+                        : __firebase_config;
+                }
+
+                if (!firebaseConfig || !firebaseConfig.apiKey) {
+                    setCloudStatusUI('local', 'Saved on Device ✓');
+                    document.getElementById('cloud-user-id').textContent = 'Local Browser Storage Mode (Auto-Saving)';
+                    return;
+                }
+
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !customCfgRaw) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    if (user) {
+                        document.getElementById('cloud-user-id').textContent = user.uid;
+                        subscribeToCloudWorkspace();
+                    }
+                });
+            } catch (err) {
+                console.error('Cloud initialization error:', err);
+                setCloudStatusUI('local', 'Saved on Device ✓');
+                document.getElementById('cloud-user-id').textContent = 'Local Browser Storage Mode';
+            }
+        }
+
+        function saveCustomFirebaseConfig() {
+            const raw = document.getElementById('custom-firebase-config').value.trim();
+            if (!raw) {
+                showToast('Paste your Firebase config JSON object first');
+                return;
+            }
+            try {
+                // Support pasting either JSON or JS snippet containing apiKey
+                let cleaned = raw;
+                if (raw.includes('firebaseConfig') && raw.includes('{')) {
+                    cleaned = raw.substring(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
+                    // Convert unquoted JS keys to JSON keys if needed
+                    cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+                }
+                const parsed = JSON.parse(cleaned);
+                if (!parsed.apiKey || !parsed.projectId) {
+                    showToast('Config must include apiKey and projectId');
+                    return;
+                }
+                localStorage.setItem(FIREBASE_CFG_KEY, JSON.stringify(parsed));
+                showToast('Firebase config saved! Reloading connection...');
+                setTimeout(() => location.reload(), 600);
+            } catch (e) {
+                showToast('Invalid JSON format. Make sure it is a valid JSON object.');
+            }
+        }
+
+        function clearCustomFirebaseConfig() {
+            localStorage.removeItem(FIREBASE_CFG_KEY);
+            document.getElementById('custom-firebase-config').value = '';
+            showToast('Switched to Local Browser Storage mode');
+            setTimeout(() => location.reload(), 500);
         }
 
         function getDefaultState() {
@@ -1473,9 +1875,64 @@
         function saveState() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                updateSidebarCounters();
             } catch (e) {
-                console.error('Storage error:', e);
+                console.error('Local storage error:', e);
+            }
+            updateSidebarCounters();
+            if (!currentUser || !db) {
+                setCloudStatusUI('local', 'Saved on Device ✓');
+                return;
+            }
+            setCloudStatusUI('syncing', 'Saving changes...');
+            clearTimeout(saveDebounceTimeout);
+            saveDebounceTimeout = setTimeout(() => {
+                pushStateToCloudNow();
+            }, 400);
+        }
+
+        function refreshCurrentViewUI() {
+            if (currentView === 'dashboard') renderDashboard();
+            if (currentView === 'notes') renderNotesView();
+            if (currentView === 'deadlines') renderDeadlinesView();
+            if (currentView === 'flashcards') renderFlashcardsView();
+            if (currentView === 'schedule') renderScheduleView();
+            if (currentView === 'toolkit') renderToolkitView();
+        }
+
+        function connectSyncPasscode() {
+            const raw = document.getElementById('cloud-sync-passcode').value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-');
+            if (!raw || raw.length < 3) {
+                showToast('Enter a passcode with at least 3 characters');
+                return;
+            }
+            activeSyncCode = raw;
+            localStorage.setItem('lumina_sync_passcode', raw);
+            document.getElementById('cloud-sync-passcode').value = raw;
+            document.getElementById('disconnect-sync-btn').classList.remove('hidden');
+            const label = document.getElementById('active-sync-code-label');
+            label.textContent = `✓ Linked to shared sync room: "${raw}"`;
+            label.classList.remove('hidden');
+            subscribeToCloudWorkspace();
+            showToast(`Linked to Cloud Sync Code: ${raw}`);
+        }
+
+        function disconnectSyncPasscode() {
+            activeSyncCode = '';
+            localStorage.removeItem('lumina_sync_passcode');
+            document.getElementById('cloud-sync-passcode').value = '';
+            document.getElementById('disconnect-sync-btn').classList.add('hidden');
+            document.getElementById('active-sync-code-label').classList.add('hidden');
+            subscribeToCloudWorkspace();
+            showToast('Returned to personal device workspace');
+        }
+
+        function forceCloudSync() {
+            saveState();
+            if (currentUser && db) {
+                pushStateToCloudNow();
+                showToast('Cloud synchronization triggered!');
+            } else {
+                showToast('Saved to your browser storage!');
             }
         }
 
@@ -1492,7 +1949,7 @@
             }, 2600);
         }
 
-        function setTheme(themeName) {
+        function setTheme(themeName, shouldSave = true) {
             state.theme = themeName;
             document.documentElement.setAttribute('data-theme', themeName);
             document.querySelectorAll('.theme-btn').forEach(btn => {
@@ -1500,7 +1957,7 @@
             });
             const activeBtn = document.getElementById(`theme-btn-${themeName}`);
             if (activeBtn) activeBtn.classList.add('surface-solid', 'font-bold');
-            saveState();
+            if (shouldSave) saveState();
         }
 
         function switchView(viewName) {
@@ -3132,7 +3589,9 @@
             deleteGradeRow,
             connectSyncPasscode,
             disconnectSyncPasscode,
-            forceCloudSync
+            forceCloudSync,
+            saveCustomFirebaseConfig,
+            clearCustomFirebaseConfig
         });
 
         window.addEventListener('DOMContentLoaded', () => {
