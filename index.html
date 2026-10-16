@@ -1,0 +1,3146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cozy-light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina — Academic Notebook & Student Workspace</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root, [data-theme="cozy-light"] {
+            --bg-primary: #FAF7F2;
+            --bg-secondary: #F2ECE1;
+            --bg-surface: rgba(255, 253, 249, 0.92);
+            --bg-surface-solid: #FFFDF9;
+            --bg-elevated: #FFFFFF;
+            --text-primary: #292524;
+            --text-secondary: #57534E;
+            --text-muted: #8A817C;
+            --border-color: #E6DFD3;
+            --border-focus: #D97706;
+            --accent-primary: #C25E00;
+            --accent-hover: #9A4800;
+            --accent-soft: #FEF3C7;
+            --accent-text: #92400E;
+            --shadow-cozy: 0 4px 20px -2px rgba(41, 37, 36, 0.05), 0 2px 6px -1px rgba(41, 37, 36, 0.03);
+            --shadow-lg: 0 12px 32px -4px rgba(41, 37, 36, 0.09);
+            --code-bg: #F5F0E6;
+        }
+
+        [data-theme="midnight-slate"] {
+            --bg-primary: #0F141C;
+            --bg-secondary: #161D2A;
+            --bg-surface: rgba(24, 32, 46, 0.90);
+            --bg-surface-solid: #18202E;
+            --bg-elevated: #202B3D;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border-color: #263348;
+            --border-focus: #6366F1;
+            --accent-primary: #6366F1;
+            --accent-hover: #818CF8;
+            --accent-soft: rgba(99, 102, 241, 0.18);
+            --accent-text: #A5B4FC;
+            --shadow-cozy: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+            --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.5);
+            --code-bg: #131924;
+        }
+
+        [data-theme="matcha-focus"] {
+            --bg-primary: #F2F5F0;
+            --bg-secondary: #E4ECE0;
+            --bg-surface: rgba(250, 252, 249, 0.92);
+            --bg-surface-solid: #FAFCF9;
+            --bg-elevated: #FFFFFF;
+            --text-primary: #1E2D24;
+            --text-secondary: #485E50;
+            --text-muted: #768C7E;
+            --border-color: #D2DFCD;
+            --border-focus: #3F6E51;
+            --accent-primary: #3B6E52;
+            --accent-hover: #2C543E;
+            --accent-soft: #DCFCE7;
+            --accent-text: #166534;
+            --shadow-cozy: 0 4px 20px -2px rgba(30, 45, 36, 0.05);
+            --shadow-lg: 0 12px 32px -4px rgba(30, 45, 36, 0.09);
+            --code-bg: #E9EFE6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.25s ease, color 0.25s ease;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        .font-serif {
+            font-family: 'Newsreader', Georgia, serif;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .surface-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-cozy);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .surface-solid {
+            background: var(--bg-surface-solid);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-cozy);
+        }
+
+        .surface-elevated {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .bg-secondary-theme { background-color: var(--bg-secondary); }
+        .border-theme { border-color: var(--border-color); }
+        .text-primary-theme { color: var(--text-primary); }
+        .text-secondary-theme { color: var(--text-secondary); }
+        .text-muted-theme { color: var(--text-muted); }
+
+        .btn-accent {
+            background-color: var(--accent-primary);
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+        .btn-accent:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .badge-accent {
+            background-color: var(--accent-soft);
+            color: var(--accent-text);
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+            transition: all 0.18s ease;
+        }
+        .nav-item:hover {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        .nav-item.active {
+            background-color: var(--accent-soft);
+            color: var(--accent-text);
+            font-weight: 600;
+        }
+
+        .input-cozy {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .input-cozy:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        #note-editor-content {
+            outline: none;
+            min-height: 380px;
+            line-height: 1.75;
+            font-size: 0.96rem;
+        }
+        #note-editor-content h1 {
+            font-family: 'Newsreader', serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem;
+        }
+        #note-editor-content h2 {
+            font-family: 'Newsreader', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0.85rem 0 0.4rem;
+        }
+        #note-editor-content h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 0.75rem 0 0.35rem;
+        }
+        #note-editor-content ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        #note-editor-content ol {
+            list-style-type: decimal;
+            padding-left: 1.5rem;
+            margin: 0.5rem 0;
+        }
+        #note-editor-content blockquote {
+            border-left: 3px solid var(--accent-primary);
+            padding-left: 1rem;
+            margin: 0.75rem 0;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+        #note-editor-content pre {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.65rem;
+            padding: 0.85rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.75rem 0;
+        }
+        #note-editor-content mark {
+            background-color: #FDE68A;
+            color: #1F2937;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+        }
+        #note-editor-content .note-check-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.35rem 0;
+        }
+
+        /* 3D Flashcard Flip */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-style: preserve-3d;
+        }
+        .flashcard-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+
+        .view-section {
+            animation: fadeSlideIn 0.22s ease-out;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 9999px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row">
+
+    <header class="lg:hidden surface-solid sticky top-0 z-30 px-4 py-3 flex items-center justify-between border-b border-theme">
+        <div class="flex items-center gap-2.5">
+            <button onclick="toggleMobileSidebar()" class="p-2 rounded-xl hover:bg-secondary-theme text-primary-theme" aria-label="Toggle Menu">
+                ☰
+            </button>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl btn-accent flex items-center justify-center font-bold shadow-sm">✦</div>
+                <span class="font-serif font-semibold text-lg tracking-tight">Lumina</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="switchView('flashcards')" class="px-2.5 py-1.5 rounded-xl badge-accent text-xs font-semibold">
+                🗂️ Cards
+            </button>
+            <button onclick="switchView('toolkit')" class="px-2.5 py-1.5 rounded-xl bg-secondary-theme text-xs font-mono font-medium flex items-center gap-1">
+                ⏱ <span id="mobile-pomo-display">25:00</span>
+            </button>
+            <button onclick="openBackupModal()" class="px-2.5 py-1.5 rounded-xl surface-solid text-xs font-semibold flex items-center gap-1" title="Cloud Sync & Settings">
+                <span id="mobile-cloud-dot" class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>☁️</span>
+            </button>
+        </div>
+    </header>
+
+    <div id="sidebar-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/40 z-40 hidden lg:hidden"></div>
+
+    <aside id="app-sidebar" class="fixed lg:sticky top-0 left-0 z-50 lg:z-20 w-72 h-screen surface-solid border-r border-theme flex flex-col justify-between transition-transform duration-300 -translate-x-full lg:translate-x-0 shrink-0">
+        <div class="p-4 flex-1 overflow-y-auto">
+            <!-- Brand Header -->
+            <div class="flex items-center justify-between px-2 mb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl btn-accent flex items-center justify-center font-bold text-lg shadow-sm">✦</div>
+                    <div>
+                        <h1 class="font-serif font-semibold text-xl leading-none tracking-tight">Lumina</h1>
+                        <p class="text-[11px] text-muted-theme font-medium mt-0.5">Academic Workspace</p>
+                    </div>
+                </div>
+                <button onclick="openBackupModal()" class="p-2 rounded-xl hover:bg-secondary-theme text-secondary-theme" title="Cloud Sync & Settings">
+                    ⚙️
+                </button>
+            </div>
+
+            <!-- Cloud Status Pill -->
+            <button onclick="openBackupModal()" class="w-full mb-4 px-3 py-2 rounded-xl bg-secondary-theme/80 hover:bg-secondary-theme flex items-center justify-between text-xs transition border border-theme">
+                <span class="flex items-center gap-2 font-medium">
+                    <span id="sidebar-cloud-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span id="sidebar-cloud-text">Connecting Cloud...</span>
+                </span>
+                <span class="text-[10px] font-mono text-muted-theme">Sync ↗</span>
+            </button>
+
+            <!-- Navigation Links -->
+            <div class="space-y-1">
+                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-theme mb-1.5">Study Hub</p>
+                <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm">
+                    <span class="flex items-center gap-3"><span>🏠</span><span>Command Dashboard</span></span>
+                </button>
+
+                <button onclick="switchView('notes')" id="nav-notes" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm">
+                    <span class="flex items-center gap-3"><span>📓</span><span>Notebook & Notes</span></span>
+                    <span id="sidebar-notes-count" class="text-xs font-mono px-2 py-0.5 rounded-full bg-secondary-theme">0</span>
+                </button>
+
+                <button onclick="switchView('deadlines')" id="nav-deadlines" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm">
+                    <span class="flex items-center gap-3"><span>📅</span><span>Assignments & Tasks</span></span>
+                    <span id="sidebar-deadlines-count" class="text-xs font-mono px-2 py-0.5 rounded-full badge-accent">0</span>
+                </button>
+
+                <button onclick="switchView('flashcards')" id="nav-flashcards" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm">
+                    <span class="flex items-center gap-3"><span>🗂️</span><span>Flashcards & Import</span></span>
+                    <span id="sidebar-cards-count" class="text-xs font-mono px-2 py-0.5 rounded-full bg-secondary-theme">0</span>
+                </button>
+
+                <button onclick="switchView('schedule')" id="nav-schedule" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm">
+                    <span class="flex items-center gap-3"><span>🗓️</span><span>Schedule & Vault</span></span>
+                </button>
+
+                <button onclick="switchView('toolkit')" id="nav-toolkit" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm">
+                    <span class="flex items-center gap-3"><span>🎓</span><span>GWA Calculator & Data</span></span>
+                </button>
+            </div>
+
+            <!-- Theme Switcher -->
+            <div class="mt-6 pt-5 border-t border-theme">
+                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-theme mb-2">Aesthetic Theme</p>
+                <div class="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-secondary-theme">
+                    <button onclick="setTheme('cozy-light')" id="theme-btn-cozy-light" class="theme-btn py-1.5 px-2 rounded-lg text-xs font-medium flex flex-col items-center gap-1 transition-all">
+                        <span class="w-4 h-4 rounded-full bg-[#FAF7F2] border border-amber-700/40"></span>
+                        <span>Cozy</span>
+                    </button>
+                    <button onclick="setTheme('midnight-slate')" id="theme-btn-midnight-slate" class="theme-btn py-1.5 px-2 rounded-lg text-xs font-medium flex flex-col items-center gap-1 transition-all">
+                        <span class="w-4 h-4 rounded-full bg-[#0F141C] border border-indigo-400/50"></span>
+                        <span>Midnight</span>
+                    </button>
+                    <button onclick="setTheme('matcha-focus')" id="theme-btn-matcha-focus" class="theme-btn py-1.5 px-2 rounded-lg text-xs font-medium flex flex-col items-center gap-1 transition-all">
+                        <span class="w-4 h-4 rounded-full bg-[#E4ECE0] border border-emerald-700/40"></span>
+                        <span>Matcha</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-3.5 border-t border-theme bg-secondary-theme/50">
+            <div class="surface-card rounded-2xl p-3.5">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold tracking-tight" id="pomo-mode-label">⏱ Focus Session</span>
+                    <span class="text-[11px] font-mono text-muted-theme">🔥 <span id="pomo-sessions-badge">0</span> today</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1 bg-secondary-theme p-1 rounded-xl text-[11px] font-medium mb-2.5">
+                    <button onclick="setPomodoroMode('focus', 25)" id="pomo-tab-focus" class="py-1 rounded-lg surface-solid font-semibold">25m</button>
+                    <button onclick="setPomodoroMode('short', 5)" id="pomo-tab-short" class="py-1 rounded-lg text-secondary-theme">5m</button>
+                    <button onclick="setPomodoroMode('long', 15)" id="pomo-tab-long" class="py-1 rounded-lg text-secondary-theme">15m</button>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div id="pomo-timer-display" class="font-mono text-2xl font-bold tracking-tight">25:00</div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="togglePomodoro()" id="pomo-start-btn" class="px-3 py-1.5 rounded-xl btn-accent text-xs font-semibold">
+                            <span id="pomo-start-text">Start</span>
+                        </button>
+                        <button onclick="resetPomodoro()" class="px-2 py-1.5 rounded-xl bg-secondary-theme hover:opacity-80 text-xs" title="Reset Timer">↺</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+
+        <!-- VIEW 1: COMMAND DASHBOARD -->
+        <section id="view-dashboard" class="view-section space-y-6">
+            <div class="surface-card rounded-3xl p-6 sm:p-7">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <div class="text-xs font-mono uppercase tracking-wider text-muted-theme mb-1" id="dashboard-current-date">Loading date...</div>
+                        <h2 class="font-serif text-2xl sm:text-3xl font-semibold tracking-tight">
+                            <span id="dashboard-greeting">Good morning</span>, <span id="dashboard-student-name" class="underline decoration-amber-500/40 decoration-2 underline-offset-4 cursor-pointer" onclick="openBackupModal()" title="Click to edit your name">Scholar</span> ✨
+                        </h2>
+                        <p id="dashboard-quote" class="text-sm text-secondary-theme mt-2 italic max-w-2xl">
+                            "Success is the sum of small efforts, repeated day in and day out." — Robert Collier
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 self-start md:self-center shrink-0">
+                        <button onclick="cycleAcademicQuote()" class="px-3 py-2 rounded-xl bg-secondary-theme hover:opacity-80 text-xs font-medium transition">
+                            ✨ Inspire Me
+                        </button>
+                        <button onclick="openFlashcardImportModal()" class="px-3.5 py-2 rounded-xl surface-solid hover:bg-secondary-theme text-xs font-semibold transition">
+                            📥 Import Flashcards
+                        </button>
+                        <button onclick="createNewNoteAndOpen()" class="px-4 py-2 rounded-xl btn-accent text-xs font-semibold shadow-xs">
+                            + Quick Note
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Quick Stats Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+                <div onclick="switchView('deadlines')" class="surface-card rounded-2xl p-4 sm:p-5 cursor-pointer hover:translate-y-[-2px]">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-medium text-secondary-theme">Upcoming Deadlines</span>
+                        <span class="w-8 h-8 rounded-xl badge-accent flex items-center justify-center text-sm">⏰</span>
+                    </div>
+                    <div class="font-mono text-2xl sm:text-3xl font-bold" id="stat-deadlines">0</div>
+                    <p class="text-[11px] text-muted-theme mt-1" id="stat-deadlines-sub">Active assignments</p>
+                </div>
+
+                <div onclick="switchView('notes')" class="surface-card rounded-2xl p-4 sm:p-5 cursor-pointer hover:translate-y-[-2px]">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-medium text-secondary-theme">Total Study Notes</span>
+                        <span class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center text-sm">📓</span>
+                    </div>
+                    <div class="font-mono text-2xl sm:text-3xl font-bold" id="stat-notes">0</div>
+                    <p class="text-[11px] text-muted-theme mt-1" id="stat-notes-sub">Across all subjects</p>
+                </div>
+
+                <div onclick="switchView('flashcards')" class="surface-card rounded-2xl p-4 sm:p-5 cursor-pointer hover:translate-y-[-2px]">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-medium text-secondary-theme">Flashcard Deck</span>
+                        <span class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center text-sm">🗂️</span>
+                    </div>
+                    <div class="font-mono text-2xl sm:text-3xl font-bold" id="stat-cards-dash">0</div>
+                    <p class="text-[11px] text-muted-theme mt-1" id="stat-cards-sub">Click to review or import</p>
+                </div>
+
+                <div onclick="switchView('toolkit')" class="surface-card rounded-2xl p-4 sm:p-5 cursor-pointer hover:translate-y-[-2px]">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-medium text-secondary-theme">Current Standing</span>
+                        <span class="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-500 flex items-center justify-center text-sm">🎓</span>
+                    </div>
+                    <div class="font-mono text-2xl sm:text-3xl font-bold" id="stat-gwa">1.25</div>
+                    <p class="text-[11px] text-muted-theme mt-1" id="stat-gwa-sub">Weighted Average</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Urgent Deadlines Widget -->
+                <div class="lg:col-span-5 surface-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-semibold text-base">🔥 Urgent Deadlines</h3>
+                            <button onclick="openAssignmentModal()" class="text-xs font-semibold hover:underline" style="color: var(--accent-primary)">+ Add Task</button>
+                        </div>
+                        <div id="dashboard-urgent-list" class="space-y-2.5"></div>
+                    </div>
+                    <button onclick="switchView('deadlines')" class="mt-4 w-full py-2 rounded-xl bg-secondary-theme text-xs font-medium text-secondary-theme hover:text-primary-theme transition">
+                        View All Assignments →
+                    </button>
+                </div>
+
+                <!-- Today's Class Schedule Widget -->
+                <div class="lg:col-span-4 surface-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-base">🏫 Class Schedule</h3>
+                            <select id="dashboard-day-selector" onchange="renderDashboardSchedule()" class="text-xs font-medium rounded-lg px-2 py-1 input-cozy">
+                                <option value="Mon">Monday</option>
+                                <option value="Tue">Tuesday</option>
+                                <option value="Wed">Wednesday</option>
+                                <option value="Thu">Thursday</option>
+                                <option value="Fri">Friday</option>
+                                <option value="Sat">Saturday</option>
+                            </select>
+                        </div>
+                        <div id="dashboard-schedule-list" class="space-y-2.5"></div>
+                    </div>
+                    <button onclick="switchView('schedule')" class="mt-4 w-full py-2 rounded-xl bg-secondary-theme text-xs font-medium text-secondary-theme hover:text-primary-theme transition">
+                        Open Full Timetable →
+                    </button>
+                </div>
+
+                <!-- Quick Scratchpad Widget -->
+                <div class="lg:col-span-3 surface-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between">
+                    <div class="flex-1 flex flex-col">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-semibold text-base">⚡ Scratchpad</h3>
+                            <span id="scratchpad-status" class="text-[11px] font-mono text-muted-theme">Auto-saved</span>
+                        </div>
+                        <p class="text-xs text-muted-theme mb-3">Instant brain-dump for formulas, reminders, or lecture snippets.</p>
+                        <textarea id="dashboard-scratchpad" oninput="saveScratchpad()" rows="7" placeholder="Type anything here..." class="w-full flex-1 rounded-2xl p-3 text-sm input-cozy resize-none leading-relaxed"></textarea>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 mt-3 pt-2">
+                        <button onclick="clearScratchpad()" class="text-xs text-muted-theme hover:text-red-500 transition">Clear</button>
+                        <button onclick="convertScratchpadToNote()" class="px-3 py-1.5 rounded-xl bg-secondary-theme hover:opacity-85 text-xs font-semibold">
+                            📄 Save as Note
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-notes" class="view-section hidden space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-semibold tracking-tight">Academic Notebook</h2>
+                    <p class="text-xs sm:text-sm text-secondary-theme">Organize lecture notes, code snippets, and study guides by subject.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="generateFlashcardsFromActiveNote()" class="px-3.5 py-2 rounded-xl badge-accent text-xs font-semibold hover:opacity-90 transition" title="Extract flashcards from this note">
+                        🗂️ Note → Flashcards
+                    </button>
+                    <button onclick="openSubjectModal()" class="px-3.5 py-2 rounded-xl surface-solid text-xs font-semibold hover:bg-secondary-theme transition">
+                        📁 Manage Subjects
+                    </button>
+                    <button onclick="createNewNote()" class="px-4 py-2 rounded-xl btn-accent text-xs font-semibold shadow-xs">
+                        + New Note
+                    </button>
+                </div>
+            </div>
+
+            <!-- Subject Filter Pills + Search Bar -->
+            <div class="surface-card rounded-2xl p-3.5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                <div id="notes-subject-tabs" class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0"></div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <input type="text" id="notes-search-input" oninput="renderNotesList()" placeholder="🔍 Search title or content..." class="w-full sm:w-60 px-3 py-1.5 rounded-xl text-xs input-cozy">
+                    <button onclick="togglePinnedNotesFilter()" id="notes-pin-filter-btn" class="px-3 py-1.5 rounded-xl text-xs font-medium border border-theme hover:bg-secondary-theme transition">
+                        📌 Pinned
+                    </button>
+                </div>
+            </div>
+
+            <!-- Master-Detail Split Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                <div class="lg:col-span-4 space-y-2.5 max-h-[680px] overflow-y-auto pr-1" id="notes-list-container"></div>
+
+                <div class="lg:col-span-8 surface-card rounded-3xl p-5 sm:p-7">
+                    <div id="note-editor-wrapper">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-theme">
+                            <div class="flex items-center gap-2">
+                                <select id="active-note-subject" onchange="updateActiveNoteMeta()" class="text-xs font-semibold rounded-xl px-3 py-1.5 input-cozy"></select>
+                                <button onclick="toggleActiveNotePin()" id="active-note-pin-btn" class="px-2.5 py-1.5 rounded-xl border border-theme hover:bg-secondary-theme text-xs transition" title="Pin Note">
+                                    📌 Pin
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="active-note-timestamp" class="text-[11px] font-mono text-muted-theme hidden sm:inline">Edited just now</span>
+                                <button onclick="exportActiveNote('md')" class="px-2.5 py-1.5 rounded-xl bg-secondary-theme hover:opacity-80 text-xs font-medium">⬇ .MD</button>
+                                <button onclick="exportActiveNote('txt')" class="px-2.5 py-1.5 rounded-xl bg-secondary-theme hover:opacity-80 text-xs font-medium">⬇ .TXT</button>
+                                <button onclick="deleteActiveNote()" class="px-2.5 py-1.5 rounded-xl text-red-500 hover:bg-red-500/10 text-xs font-semibold transition">🗑</button>
+                            </div>
+                        </div>
+
+                        <input type="text" id="active-note-title" oninput="updateActiveNoteMeta()" placeholder="Untitled Lecture Note..." class="w-full font-serif text-2xl sm:text-3xl font-semibold bg-transparent border-0 focus:outline-none mt-4 mb-3">
+
+                        <div class="flex flex-wrap items-center gap-1 p-1.5 rounded-2xl bg-secondary-theme mb-4 border border-theme">
+                            <button onclick="formatDoc('bold')" class="px-2.5 py-1.5 rounded-xl hover:bg-black/5 text-xs font-bold" title="Bold">B</button>
+                            <button onclick="formatDoc('italic')" class="px-2.5 py-1.5 rounded-xl hover:bg-black/5 text-xs italic" title="Italic">I</button>
+                            <button onclick="formatDoc('underline')" class="px-2.5 py-1.5 rounded-xl hover:bg-black/5 text-xs underline" title="Underline">U</button>
+                            <span class="h-4 w-[1px] bg-stone-400/30 mx-1"></span>
+                            <button onclick="formatDoc('formatBlock', 'H1')" class="px-2 py-1.5 rounded-xl hover:bg-black/5 text-xs font-serif font-bold">H1</button>
+                            <button onclick="formatDoc('formatBlock', 'H2')" class="px-2 py-1.5 rounded-xl hover:bg-black/5 text-xs font-serif font-semibold">H2</button>
+                            <button onclick="formatDoc('formatBlock', 'H3')" class="px-2 py-1.5 rounded-xl hover:bg-black/5 text-xs font-semibold">H3</button>
+                            <span class="h-4 w-[1px] bg-stone-400/30 mx-1"></span>
+                            <button onclick="formatDoc('insertUnorderedList')" class="px-2.5 py-1.5 rounded-xl hover:bg-black/5 text-xs">• List</button>
+                            <button onclick="insertChecklistItem()" class="px-2.5 py-1.5 rounded-xl hover:bg-black/5 text-xs font-medium">☑ Check</button>
+                            <button onclick="insertCodeBlock()" class="px-2.5 py-1.5 rounded-xl hover:bg-black/5 text-xs font-mono">{ } Code</button>
+                            <button onclick="insertHighlight()" class="px-2.5 py-1.5 rounded-xl hover:bg-black/5 text-xs">🖍 Highlight</button>
+                            <button onclick="formatDoc('formatBlock', 'BLOCKQUOTE')" class="px-2.5 py-1.5 rounded-xl hover:bg-black/5 text-xs">❝ Quote</button>
+                        </div>
+
+                        <div id="note-editor-content" contenteditable="true" oninput="handleNoteContentInput()" class="w-full py-2"></div>
+
+                        <div class="pt-4 mt-4 border-t border-theme flex items-center justify-between text-xs font-mono text-muted-theme">
+                            <div class="flex items-center gap-4">
+                                <span id="note-word-count">0 words</span>
+                                <span id="note-char-count">0 characters</span>
+                            </div>
+                            <button onclick="copyNoteToClipboard()" class="hover:text-primary-theme transition">📋 Copy Text</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-deadlines" class="view-section hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-semibold tracking-tight">Assignment & Deadline Tracker</h2>
+                    <p class="text-xs sm:text-sm text-secondary-theme">Stay ahead of submissions, lab reports, and exam milestones.</p>
+                </div>
+                <button onclick="openAssignmentModal()" class="px-4 py-2.5 rounded-xl btn-accent text-xs font-semibold self-start sm:self-auto shadow-xs">
+                    + Add Assignment
+                </button>
+            </div>
+
+            <div class="surface-card rounded-2xl p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-1.5 overflow-x-auto">
+                    <button onclick="setDeadlineStatusFilter('all')" id="dl-filter-all" class="px-3 py-1.5 rounded-xl text-xs font-semibold btn-accent">All Tasks</button>
+                    <button onclick="setDeadlineStatusFilter('Pending')" id="dl-filter-Pending" class="px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-secondary-theme">Pending</button>
+                    <button onclick="setDeadlineStatusFilter('In Progress')" id="dl-filter-In Progress" class="px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-secondary-theme">In Progress</button>
+                    <button onclick="setDeadlineStatusFilter('Completed')" id="dl-filter-Completed" class="px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-secondary-theme">Completed</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-muted-theme">Subject:</span>
+                    <select id="dl-subject-filter" onchange="renderDeadlinesView()" class="text-xs font-medium rounded-xl px-3 py-1.5 input-cozy">
+                        <option value="all">All Subjects</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="deadlines-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </section>
+
+        <section id="view-flashcards" class="view-section hidden space-y-6">
+            <!-- Header with Create & Import Actions -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-semibold tracking-tight">Flashcards & Active Recall Hub</h2>
+                    <p class="text-xs sm:text-sm text-secondary-theme">Create your own study cards or import decks from Quizlet, Anki, CSV/TSV files, JSON, or your Study Notes.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openFlashcardModal()" class="px-4 py-2.5 rounded-xl btn-accent text-xs font-semibold flex items-center gap-1.5 shadow-xs">
+                        <span>➕</span> <span>Create Flashcard</span>
+                    </button>
+                    <button onclick="openFlashcardImportModal()" class="px-4 py-2.5 rounded-xl surface-solid hover:bg-secondary-theme text-xs font-semibold flex items-center gap-1.5 border border-theme transition">
+                        <span>📥</span> <span>Import Flashcards</span>
+                    </button>
+                    <button onclick="exportFlashcardsDeck()" class="px-3.5 py-2.5 rounded-xl bg-secondary-theme hover:opacity-85 text-xs font-semibold transition" title="Export current deck as CSV/TSV">
+                        ⬇ Export Deck
+                    </button>
+                </div>
+            </div>
+
+            <!-- Deck Filter & Study Status Bar -->
+            <div class="surface-card rounded-2xl p-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-semibold text-secondary-theme">Deck:</span>
+                    <select id="flashcard-deck-filter" onchange="changeFlashcardDeck()" class="text-xs font-semibold rounded-xl px-3.5 py-1.5 input-cozy">
+                        <option value="all">All Subjects Deck</option>
+                    </select>
+                    <select id="flashcard-status-filter" onchange="changeFlashcardDeck()" class="text-xs font-medium rounded-xl px-3 py-1.5 input-cozy">
+                        <option value="all">All Statuses</option>
+                        <option value="learning">Still Learning Only</option>
+                        <option value="mastered">Mastered Only</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-mono">
+                    <span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 font-semibold">✓ Mastered: <span id="fc-mastered-count">0</span></span>
+                    <span class="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-600 font-semibold">↻ Learning: <span id="fc-learning-count">0</span></span>
+                </div>
+            </div>
+
+            <!-- Main Flashcard Arena + Quick Create / Deck Manager -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- 3D Flip Card Stage (7 cols) -->
+                <div class="lg:col-span-7 surface-card rounded-3xl p-5 sm:p-6 flex flex-col items-center">
+                    <div class="w-full flex items-center justify-between text-xs font-mono text-muted-theme mb-3">
+                        <span id="fc-counter-label">Card 1 of 1</span>
+                        <span>Shortcut: <kbd class="px-1.5 py-0.5 rounded bg-secondary-theme">Space</kbd> Flip • <kbd class="px-1.5 py-0.5 rounded bg-secondary-theme">←/→</kbd> Navigate</span>
+                    </div>
+
+                    <!-- 3D Card Container -->
+                    <div onclick="flipCurrentFlashcard()" class="w-full h-72 sm:h-80 perspective-1000 cursor-pointer select-none my-1">
+                        <div id="flashcard-3d-inner" class="flashcard-inner">
+                            <!-- Front Face (Question) -->
+                            <div class="flashcard-face surface-elevated rounded-3xl p-6 sm:p-8 flex flex-col justify-between border-2 border-theme">
+                                <div class="flex items-center justify-between">
+                                    <span id="fc-front-subject" class="text-xs font-semibold px-3 py-1 rounded-full badge-accent">Subject</span>
+                                    <span class="text-[11px] font-mono text-muted-theme uppercase tracking-wider">Question • Click to Flip</span>
+                                </div>
+                                <div class="my-auto text-center px-2 overflow-y-auto">
+                                    <h3 id="fc-front-question" class="font-serif text-xl sm:text-2xl font-medium leading-snug">
+                                        Loading question...
+                                    </h3>
+                                    <p id="fc-front-hint" class="text-xs text-amber-600 mt-3 italic hidden"></p>
+                                </div>
+                                <div class="flex items-center justify-between text-xs text-muted-theme">
+                                    <button onclick="event.stopPropagation(); toggleFlashcardHint()" id="fc-hint-btn" class="hover:underline text-amber-600 font-medium">💡 Show Hint</button>
+                                    <span>Tap card to reveal answer ↻</span>
+                                </div>
+                            </div>
+
+                            <!-- Back Face (Answer) -->
+                            <div class="flashcard-face flashcard-back surface-elevated rounded-3xl p-6 sm:p-8 flex flex-col justify-between border-2" style="border-color: var(--accent-primary)">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600">Answer / Definition</span>
+                                    <span class="text-[11px] font-mono text-muted-theme uppercase tracking-wider">Click to Flip Back</span>
+                                </div>
+                                <div class="my-auto text-center px-2 overflow-y-auto">
+                                    <p id="fc-back-answer" class="text-base sm:text-lg font-medium leading-relaxed whitespace-pre-line">
+                                        Loading answer...
+                                    </p>
+                                </div>
+                                <div class="text-center text-xs text-muted-theme">
+                                    Rate your recall below to track mastery
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation & Mastery Controls -->
+                    <div class="w-full flex flex-wrap items-center justify-between gap-2 mt-5 pt-4 border-t border-theme">
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="prevFlashcard()" class="px-3 py-2 rounded-xl bg-secondary-theme hover:opacity-80 text-xs font-bold" title="Previous Card">← Prev</button>
+                            <button onclick="nextFlashcard()" class="px-3 py-2 rounded-xl bg-secondary-theme hover:opacity-80 text-xs font-bold" title="Next Card">Next →</button>
+                            <button onclick="shuffleFlashcards()" class="px-3 py-2 rounded-xl bg-secondary-theme hover:opacity-80 text-xs font-medium" title="Shuffle Deck">🔀 Shuffle</button>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button onclick="markFlashcardStatus('learning')" class="px-3.5 py-2 rounded-xl bg-amber-500/15 text-amber-600 hover:bg-amber-500/25 text-xs font-semibold transition">
+                                ↻ Still Learning
+                            </button>
+                            <button onclick="markFlashcardStatus('mastered')" class="px-3.5 py-2 rounded-xl bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 text-xs font-semibold transition">
+                                ✓ Know It!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Inline Quick Creator + Deck List Manager (5 cols) -->
+                <div class="lg:col-span-5 space-y-5">
+                    <!-- Quick Inline Create Box -->
+                    <div class="surface-card rounded-3xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-sm">⚡ Quick-Add Flashcard</h3>
+                            <button onclick="openFlashcardImportModal()" class="text-xs font-semibold hover:underline" style="color: var(--accent-primary)">
+                                Bulk Import / Upload →
+                            </button>
+                        </div>
+                        <div class="space-y-2.5">
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="quick-fc-subject" class="rounded-xl px-3 py-1.5 text-xs font-medium input-cozy"></select>
+                                <input type="text" id="quick-fc-hint" placeholder="Optional Hint..." class="rounded-xl px-3 py-1.5 text-xs input-cozy">
+                            </div>
+                            <input type="text" id="quick-fc-question" placeholder="Front: Question, term, or formula..." class="w-full rounded-xl px-3 py-2 text-xs input-cozy">
+                            <textarea id="quick-fc-answer" rows="2" placeholder="Back: Answer, definition, or explanation..." class="w-full rounded-xl px-3 py-2 text-xs input-cozy resize-none"></textarea>
+                            <button onclick="quickSaveFlashcard()" class="w-full py-2 rounded-xl btn-accent text-xs font-semibold">
+                                + Add Card to Deck
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cards in Current Deck List -->
+                    <div class="surface-card rounded-3xl p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-sm">Cards in Deck (<span id="fc-list-total">0</span>)</h3>
+                            <div class="flex items-center gap-2">
+                                <button onclick="resetFlashcardMastery()" class="text-[11px] text-muted-theme hover:text-primary-theme transition">Reset Mastery</button>
+                            </div>
+                        </div>
+                        <div id="flashcards-deck-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-schedule" class="view-section hidden space-y-8">
+            <div class="space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="font-serif text-2xl sm:text-3xl font-semibold tracking-tight">Weekly Class Timetable</h2>
+                        <p class="text-xs sm:text-sm text-secondary-theme">Keep track of your lecture rooms, lab schedules, and instructors.</p>
+                    </div>
+                    <button onclick="openScheduleModal()" class="px-4 py-2 rounded-xl btn-accent text-xs font-semibold self-start sm:self-auto shadow-xs">
+                        + Add Class Slot
+                    </button>
+                </div>
+                <div id="weekly-timetable-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+
+            <div class="space-y-4 pt-4 border-t border-theme">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-serif text-xl sm:text-2xl font-semibold tracking-tight">Academic Resource & Links Vault</h3>
+                        <p class="text-xs sm:text-sm text-secondary-theme">Quick bookmarks to your university portal, syllabus drive, GitHub, and reference docs.</p>
+                    </div>
+                    <button onclick="openLinkModal()" class="px-4 py-2 rounded-xl surface-solid hover:bg-secondary-theme text-xs font-semibold self-start sm:self-auto">
+                        🔖 Add Bookmark
+                    </button>
+                </div>
+                <div id="links-vault-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
+            </div>
+        </section>
+
+        <section id="view-toolkit" class="view-section hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-semibold tracking-tight">Academic Toolkit & Grade Calculator</h2>
+                    <p class="text-xs sm:text-sm text-secondary-theme">Calculate your Semester GWA / GPA dynamically and manage your workspace data.</p>
+                </div>
+                <button onclick="addGradeRow()" class="px-4 py-2 rounded-xl btn-accent text-xs font-semibold shadow-xs">
+                    + Add Course
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-8 surface-card rounded-3xl p-5 sm:p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                        <h3 class="font-semibold text-base">Semester Courses & Credits</h3>
+                        <span class="text-xs text-muted-theme">Supports 1.00–5.00 GWA or 4.00 GPA scales</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-theme text-[11px] font-mono uppercase text-muted-theme">
+                                    <th class="py-2.5 pr-3">Course / Subject Name</th>
+                                    <th class="py-2.5 px-3 w-28">Units / Credits</th>
+                                    <th class="py-2.5 px-3 w-28">Grade</th>
+                                    <th class="py-2.5 pl-3 w-12 text-right"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="grade-calculator-rows" class="divide-y divide-stone-300/30 text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 space-y-5">
+                    <div class="surface-card rounded-3xl p-6 text-center">
+                        <span class="text-xs font-mono uppercase tracking-wider text-muted-theme">Computed Weighted Average</span>
+                        <div id="calc-result-gwa" class="font-mono text-4xl sm:text-5xl font-bold my-3" style="color: var(--accent-primary)">1.25</div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full badge-accent text-xs font-semibold mb-4" id="calc-standing-badge">
+                            🏅 President's / Dean's Lister
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-4 border-t border-theme text-xs">
+                            <div class="p-2.5 rounded-xl bg-secondary-theme">
+                                <span class="text-muted-theme block">Total Courses</span>
+                                <span id="calc-total-courses" class="font-mono font-bold text-base">0</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-secondary-theme">
+                                <span class="text-muted-theme block">Total Units</span>
+                                <span id="calc-total-units" class="font-mono font-bold text-base">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="surface-card rounded-3xl p-5 sm:p-6 space-y-3">
+                        <h3 class="font-semibold text-base">☁️ Cloud Sync & Backup</h3>
+                        <p class="text-xs text-secondary-theme leading-relaxed">
+                            Your notes, deadlines, flashcards, and schedules automatically sync to the cloud. You can also link multiple devices with a Sync Code or export a JSON backup anytime.
+                        </p>
+                        <div class="pt-2 space-y-2">
+                            <button onclick="openBackupModal()" class="w-full py-2.5 px-4 rounded-xl surface-solid hover:bg-secondary-theme text-xs font-semibold transition">
+                                ☁️ Open Cloud Sync Settings
+                            </button>
+                            <button onclick="exportWorkspaceJSON()" class="w-full py-2.5 px-4 rounded-xl btn-accent text-xs font-semibold">
+                                ⬇ Export Full Workspace (.JSON)
+                            </button>
+                            <label class="w-full py-2.5 px-4 rounded-xl surface-solid hover:bg-secondary-theme text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer transition">
+                                ⬆ Import Workspace JSON
+                                <input type="file" accept=".json" onchange="importWorkspaceJSON(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Settings, Cloud Sync & Backup Modal -->
+    <div id="modal-backup" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="surface-elevated rounded-3xl max-w-lg w-full p-6 space-y-5 my-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-serif text-xl font-semibold">☁️ Cloud Sync & Student Profile</h3>
+                    <p class="text-xs text-secondary-theme">Sync your workspace across your laptop, tablet, and phone.</p>
+                </div>
+                <button onclick="closeModal('modal-backup')" class="p-1.5 rounded-xl hover:bg-secondary-theme">✕</button>
+            </div>
+
+            <!-- Cloud Connection Status Box -->
+            <div class="p-4 rounded-2xl bg-secondary-theme space-y-2 border border-theme">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold flex items-center gap-2">
+                        <span id="modal-cloud-dot" class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                        <span id="modal-cloud-status">Initializing Cloud Storage...</span>
+                    </span>
+                    <button onclick="forceCloudSync()" class="text-xs font-semibold hover:underline" style="color: var(--accent-primary)">↻ Sync Now</button>
+                </div>
+                <div class="text-[11px] font-mono text-muted-theme break-all">
+                    Account ID: <span id="cloud-user-id" class="text-secondary-theme select-all">Authenticating...</span>
+                </div>
+            </div>
+
+            <!-- Cross-Device Sync Room Code -->
+            <div class="space-y-2 pt-2 border-t border-theme">
+                <label class="text-xs font-semibold block">🔗 Cross-Device Sync Passcode (Laptop ↔ Phone)</label>
+                <p class="text-[11px] text-secondary-theme leading-relaxed">
+                    Enter a unique secret passcode (e.g., <code>alex-study-2026</code>) on both your laptop and phone to share the exact same live cloud notebook in real time.
+                </p>
+                <div class="flex gap-2">
+                    <input type="text" id="cloud-sync-passcode" placeholder="e.g., my-secret-notebook-key" class="flex-1 rounded-xl px-3.5 py-2 text-xs font-mono input-cozy">
+                    <button onclick="connectSyncPasscode()" class="px-4 py-2 rounded-xl btn-accent text-xs font-semibold shrink-0">Link Code</button>
+                    <button onclick="disconnectSyncPasscode()" id="disconnect-sync-btn" class="px-3 py-2 rounded-xl bg-secondary-theme text-xs font-semibold hidden shrink-0">Unlink</button>
+                </div>
+                <p id="active-sync-code-label" class="text-[11px] font-mono text-emerald-600 hidden"></p>
+            </div>
+
+            <!-- Display Name -->
+            <div class="space-y-2 pt-3 border-t border-theme">
+                <label class="text-xs font-semibold block">Your Display Name</label>
+                <div class="flex gap-2">
+                    <input type="text" id="settings-student-name" placeholder="Scholar" class="flex-1 rounded-xl px-3.5 py-2 text-sm input-cozy">
+                    <button onclick="saveStudentName()" class="px-4 py-2 rounded-xl btn-accent text-xs font-semibold">Update</button>
+                </div>
+            </div>
+
+            <!-- File Backup & Restore -->
+            <div class="pt-3 border-t border-theme space-y-2.5">
+                <p class="text-xs font-semibold">File Backup & Restore (.JSON)</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="exportWorkspaceJSON()" class="py-2.5 px-3 rounded-xl bg-secondary-theme hover:opacity-85 text-xs font-semibold">⬇ Export JSON</button>
+                    <label class="py-2.5 px-3 rounded-xl bg-secondary-theme hover:opacity-85 text-xs font-semibold text-center cursor-pointer">
+                        ⬆ Import JSON
+                        <input type="file" accept=".json" onchange="importWorkspaceJSON(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-theme flex items-center justify-between">
+                <span class="text-xs text-muted-theme">Restore default sample data?</span>
+                <button onclick="resetToSampleData()" class="text-xs font-semibold text-red-500 hover:underline">Reset Demo Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const ACADEMIC_QUOTES = [
+            '"Success is the sum of small efforts, repeated day in and day out." — Robert Collier',
+            '"An investment in knowledge pays the best interest." — Benjamin Franklin',
+            '"The secret of getting ahead is getting started." — Mark Twain',
+            '"Live as if you were to die tomorrow. Learn as if you were to live forever." — Mahatma Gandhi',
+            '"Don\'t watch the clock; do what it does. Keep going." — Sam Levenson',
+            '"Understanding is deeper than knowledge." — Carl Sagan'
+        ];
+
+        function getRelativeDateStr(offsetDays) {
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            return d.toISOString().split('T')[0];
+        }
+
+        function getDefaultState() {
+            return {
+                studentName: 'Alex',
+                theme: 'cozy-light',
+                pomodoroSessionsToday: 3,
+                scratchpad: '• Ask Prof. Reyes about AVL Tree rotation edge cases\n• Bring student ID for library locker renewal\n• Group project sync at 4:00 PM on Discord',
+                subjects: [
+                    { id: 'subj-1', name: 'Data Structures', color: '#D97706' },
+                    { id: 'subj-2', name: 'Web Development', color: '#2563EB' },
+                    { id: 'subj-3', name: 'Computer Networks', color: '#059669' },
+                    { id: 'subj-4', name: 'General Education', color: '#7C3AED' },
+                    { id: 'subj-5', name: 'Personal Projects', color: '#DB2777' }
+                ],
+                notes: [
+                    {
+                        id: 'note-1',
+                        title: 'Binary Search Trees & AVL Rotations',
+                        subject: 'Data Structures',
+                        pinned: true,
+                        updatedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+                        content: `<h1>Binary Search Tree (BST) Fundamentals</h1><p>A <strong>Binary Search Tree</strong> is a node-based binary tree data structure which has the following properties:</p><ul><li><strong>BST Left Subtree Property</strong> : Contains only nodes with keys lesser than the parent node's key.</li><li><strong>BST Right Subtree Property</strong> : Contains only nodes with keys greater than the parent node's key.</li><li><strong>AVL Balance Factor</strong> : Height(Left Subtree) minus Height(Right Subtree), which must remain in {-1, 0, 1}.</li></ul><h2>Time Complexity Summary</h2><pre>Search  : O(log n) average | O(n) worst-case (skewed tree)\nInsert  : O(log n) average | O(n) worst-case\nDelete  : O(log n) average | O(n) worst-case</pre><blockquote>Pro-tip for the Midterm Exam: Always check the Balance Factor = height(left) - height(right).</blockquote><h3>Exam Review Checklist</h3><div class="note-check-item"><input type="checkbox" checked><span>Trace Left-Left (LL) and Right-Right (RR) single rotations</span></div><div class="note-check-item"><input type="checkbox"><span>Practice Left-Right (LR) double rotation on paper</span></div>`
+                    },
+                    {
+                        id: 'note-2',
+                        title: 'Modern CSS Architecture & DOM Essentials',
+                        subject: 'Web Development',
+                        pinned: true,
+                        updatedAt: new Date(Date.now() - 3600000 * 18).toISOString(),
+                        content: `<h1>Core Web Concepts</h1><ul><li><strong>DOM (Document Object Model)</strong> : Programming interface for web documents that represents the page as a tree of nodes.</li><li><strong>CSS Flexbox</strong> : One-dimensional layout method for arranging items in rows or columns.</li><li><strong>CSS Grid</strong> : Two-dimensional layout system for web pages.</li><li><strong>Cloud Database</strong> : Real-time cloud persistence API that synchronizes structured documents across devices automatically.</li></ul>`
+                    },
+                    {
+                        id: 'note-3',
+                        title: 'OSI Model 7 Layers & TCP/IP Handshake',
+                        subject: 'Computer Networks',
+                        pinned: false,
+                        updatedAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+                        content: `<h1>The 7 Layers of the OSI Model</h1><p>Mnemonic from Bottom (Layer 1) to Top (Layer 7): <mark>Please Do Not Throw Sausage Pizza Away</mark></p><ol><li><strong>Physical Layer</strong> : Transmits raw bit stream over the physical medium (cables, fiber).</li><li><strong>Data Link Layer</strong> : Node-to-node data transfer using MAC addresses and switches.</li><li><strong>Network Layer</strong> : Logical addressing (IP addresses) and packet routing.</li><li><strong>Transport Layer</strong> : End-to-end communication, TCP/UDP segments, and port numbers.</li></ol>`
+                    }
+                ],
+                assignments: [
+                    {
+                        id: 'assign-1',
+                        title: 'AVL Tree Balancing Lab Implementation',
+                        subject: 'Data Structures',
+                        dueDate: getRelativeDateStr(0),
+                        priority: 'High',
+                        status: 'In Progress',
+                        notes: 'Include unit tests for LR and RL rotations before pushing to GitHub.'
+                    },
+                    {
+                        id: 'assign-2',
+                        title: 'Responsive Portfolio & Notebook Wireframe',
+                        subject: 'Web Development',
+                        dueDate: getRelativeDateStr(2),
+                        priority: 'High',
+                        status: 'Pending',
+                        notes: 'Ensure mobile responsiveness and dark mode variables.'
+                    },
+                    {
+                        id: 'assign-3',
+                        title: 'Wireshark Packet Capture Lab Report',
+                        subject: 'Computer Networks',
+                        dueDate: getRelativeDateStr(5),
+                        priority: 'Medium',
+                        status: 'Pending',
+                        notes: 'Analyze 3-way TCP handshake and DNS query packets.'
+                    }
+                ],
+                flashcards: [
+                    {
+                        id: 'fc-1',
+                        subject: 'Data Structures',
+                        question: 'What is the worst-case time complexity of searching in an unbalanced Binary Search Tree (BST)?',
+                        answer: 'O(n) — occurs when the tree degenerates into a linked list (e.g., inserting already sorted elements).',
+                        hint: 'Think of a skewed tree that looks like a straight line.',
+                        status: 'mastered'
+                    },
+                    {
+                        id: 'fc-2',
+                        subject: 'Data Structures',
+                        question: 'Which data structure uses LIFO (Last-In, First-Out) ordering and powers function call execution?',
+                        answer: 'A Stack (used for the call stack, undo mechanisms, and depth-first traversal).',
+                        hint: 'Think of a stack of plates.',
+                        status: 'learning'
+                    },
+                    {
+                        id: 'fc-3',
+                        subject: 'Computer Networks',
+                        question: 'What are the 3 steps of the TCP Three-Way Handshake?',
+                        answer: '1. SYN (Client sends synchronize packet)\n2. SYN-ACK (Server acknowledges and synchronizes)\n3. ACK (Client acknowledges; connection established).',
+                        hint: 'SYN → SYN-ACK → ?',
+                        status: 'learning'
+                    },
+                    {
+                        id: 'fc-4',
+                        subject: 'Web Development',
+                        question: 'What is the benefit of real-time cloud document synchronization in web apps?',
+                        answer: 'Changes made on one device are immediately pushed to connected clients without requiring manual page refreshes.',
+                        hint: 'Think of live collaborative notebooks.',
+                        status: 'mastered'
+                    }
+                ],
+                schedule: [
+                    { id: 'sc-1', day: 'Mon', time: '08:30 AM - 10:00 AM', course: 'CS 201 — Data Structures', room: 'Lab 302', instructor: 'Prof. A. Reyes' },
+                    { id: 'sc-2', day: 'Mon', time: '01:00 PM - 02:30 PM', course: 'IT 204 — Web Systems', room: 'Rm 405', instructor: 'Prof. M. Santos' },
+                    { id: 'sc-3', day: 'Tue', time: '10:00 AM - 11:30 AM', course: 'NET 102 — Computer Networks', room: 'Cisco Lab 2', instructor: 'Engr. D. Cruz' },
+                    { id: 'sc-4', day: 'Wed', time: '08:30 AM - 10:00 AM', course: 'CS 201 — Data Structures', room: 'Lab 302', instructor: 'Prof. A. Reyes' },
+                    { id: 'sc-5', day: 'Thu', time: '10:00 AM - 11:30 AM', course: 'NET 102 — Computer Networks', room: 'Cisco Lab 2', instructor: 'Engr. D. Cruz' },
+                    { id: 'sc-6', day: 'Fri', time: '01:00 PM - 04:00 PM', course: 'IT 204 — Web Capstone Lab', room: 'Innovation Hub', instructor: 'Prof. M. Santos' }
+                ],
+                links: [
+                    { id: 'lk-1', title: 'University LMS Portal', category: 'Academic Portal', url: 'https://canvas.instructure.com' },
+                    { id: 'lk-2', title: 'MDN Web Docs', category: 'Reference Docs', url: 'https://developer.mozilla.org' },
+                    { id: 'lk-3', title: 'GitHub Student Pack', category: 'Developer Tools', url: 'https://education.github.com/pack' },
+                    { id: 'lk-4', title: 'Google Scholar', category: 'Research Papers', url: 'https://scholar.google.com' }
+                ],
+                grades: [
+                    { id: 'gr-1', course: 'CS 201 — Data Structures & Algorithms', units: 3, grade: 1.25 },
+                    { id: 'gr-2', course: 'IT 204 — Web Systems & Technologies', units: 3, grade: 1.00 },
+                    { id: 'gr-3', course: 'NET 102 — Computer Networking', units: 3, grade: 1.50 },
+                    { id: 'gr-4', course: 'GE 108 — Ethics & Modern Society', units: 3, grade: 1.25 }
+                ]
+            };
+        }
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'lumina-academic-workspace';
+        let app = null;
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        let activeSyncCode = '';
+        let unsubscribeWorkspace = null;
+        let saveDebounceTimeout = null;
+        let lastSavedStamp = '';
+
+        let state = getDefaultState();
+        let currentView = 'dashboard';
+        let activeNoteId = state.notes.length > 0 ? state.notes[0].id : null;
+        let selectedSubjectFilter = 'all';
+        let pinnedOnlyFilter = false;
+        let deadlineStatusFilter = 'all';
+        let currentCardIndex = 0;
+        let stagedImportCards = [];
+
+        // Pomodoro state
+        let pomoTimeLeft = 25 * 60;
+        let pomoTotalTime = 25 * 60;
+        let pomoMode = 'focus';
+        let pomoInterval = null;
+        let pomoRunning = false;
+
+        function setCloudStatusUI(stateType, labelText) {
+            const dots = [
+                document.getElementById('sidebar-cloud-dot'),
+                document.getElementById('mobile-cloud-dot'),
+                document.getElementById('modal-cloud-dot')
+            ];
+            const colorMap = {
+                synced: 'bg-emerald-500',
+                syncing: 'bg-amber-500 animate-pulse',
+                offline: 'bg-stone-400'
+            };
+            dots.forEach(d => {
+                if (!d) return;
+                d.className = `w-2.5 h-2.5 rounded-full ${colorMap[stateType] || 'bg-amber-500'}`;
+            });
+            const sidebarText = document.getElementById('sidebar-cloud-text');
+            const modalText = document.getElementById('modal-cloud-status');
+            if (sidebarText) sidebarText.textContent = labelText;
+            if (modalText) modalText.textContent = labelText;
+        }
+
+        function getActiveWorkspaceDocRef() {
+            if (!db || !currentUser) return null;
+            if (activeSyncCode) {
+                return doc(db, 'artifacts', appId, 'public', 'data', 'syncedWorkspaces', activeSyncCode);
+            }
+            return doc(db, 'artifacts', appId, 'users', currentUser.uid, 'workspace', 'main');
+        }
+
+        async function initCloudWorkspace() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    setCloudStatusUI('offline', 'Session Mode (Export JSON)');
+                    document.getElementById('cloud-user-id').textContent = 'No Cloud Config Detected';
+                    return;
+                }
+
+                const firebaseConfig = typeof __firebase_config === 'string'
+                    ? JSON.parse(__firebase_config)
+                    : __firebase_config;
+
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // RULE 3: Authenticate FIRST before any Firestore operation
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    if (user) {
+                        document.getElementById('cloud-user-id').textContent = user.uid;
+                        subscribeToCloudWorkspace();
+                    }
+                });
+            } catch (err) {
+                console.error('Cloud initialization error:', err);
+                setCloudStatusUI('offline', 'Offline Session Mode');
+            }
+        }
+
+        function subscribeToCloudWorkspace() {
+            if (!currentUser || !db) return;
+            if (unsubscribeWorkspace) {
+                unsubscribeWorkspace();
+                unsubscribeWorkspace = null;
+            }
+
+            const docRef = getActiveWorkspaceDocRef();
+            if (!docRef) return;
+
+            setCloudStatusUI('syncing', 'Syncing with Cloud...');
+
+            unsubscribeWorkspace = onSnapshot(
+                docRef,
+                async (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.data();
+                        if (data && data.workspaceJson && data.updatedAt !== lastSavedStamp) {
+                            try {
+                                const parsed = JSON.parse(data.workspaceJson);
+                                state = { ...getDefaultState(), ...parsed };
+                                if (!activeNoteId || !state.notes.some(n => n.id === activeNoteId)) {
+                                    activeNoteId = state.notes[0]?.id || null;
+                                }
+                                setTheme(state.theme || 'cozy-light', false);
+                                updateSidebarCounters();
+                                refreshCurrentViewUI();
+                            } catch (parseErr) {
+                                console.error('Error parsing cloud workspace:', parseErr);
+                            }
+                        }
+                        setCloudStatusUI('synced', activeSyncCode ? `Synced (${activeSyncCode})` : 'Cloud Synced ✓');
+                    } else {
+                        // First time for this user or sync code: push current state to cloud
+                        await pushStateToCloudNow();
+                    }
+                },
+                (error) => {
+                    console.error('Firestore listener error:', error);
+                    setCloudStatusUI('offline', 'Cloud Sync Paused');
+                }
+            );
+        }
+
+        async function pushStateToCloudNow() {
+            if (!currentUser || !db) return;
+            const docRef = getActiveWorkspaceDocRef();
+            if (!docRef) return;
+
+            try {
+                setCloudStatusUI('syncing', 'Saving to Cloud...');
+                const stamp = new Date().toISOString();
+                lastSavedStamp = stamp;
+                await setDoc(docRef, {
+                    workspaceJson: JSON.stringify(state),
+                    studentName: state.studentName || 'Scholar',
+                    updatedAt: stamp,
+                    updatedBy: currentUser.uid
+                });
+                setCloudStatusUI('synced', activeSyncCode ? `Synced (${activeSyncCode})` : 'Cloud Synced ✓');
+            } catch (err) {
+                console.error('Error saving to cloud:', err);
+                setCloudStatusUI('offline', 'Sync Retry Pending');
+            }
+        }
+
+        function saveState() {
+            updateSidebarCounters();
+            if (!currentUser || !db) return;
+            setCloudStatusUI('syncing', 'Saving changes...');
+            clearTimeout(saveDebounceTimeout);
+            saveDebounceTimeout = setTimeout(() => {
+                pushStateToCloudNow();
+            }, 400);
+        }
+
+        function refreshCurrentViewUI() {
+            if (currentView === 'dashboard') renderDashboard();
+            if (currentView === 'notes') renderNotesView();
+            if (currentView === 'deadlines') renderDeadlinesView();
+            if (currentView === 'flashcards') renderFlashcardsView();
+            if (currentView === 'schedule') renderScheduleView();
+            if (currentView === 'toolkit') renderToolkitView();
+        }
+
+        function connectSyncPasscode() {
+            const raw = document.getElementById('cloud-sync-passcode').value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-');
+            if (!raw || raw.length < 3) {
+                showToast('Enter a passcode with at least 3 characters');
+                return;
+            }
+            activeSyncCode = raw;
+            document.getElementById('cloud-sync-passcode').value = raw;
+            document.getElementById('disconnect-sync-btn').classList.remove('hidden');
+            const label = document.getElementById('active-sync-code-label');
+            label.textContent = `✓ Linked to shared sync room: "${raw}"`;
+            label.classList.remove('hidden');
+            subscribeToCloudWorkspace();
+            showToast(`Linked to Cloud Sync Code: ${raw}`);
+        }
+
+        function disconnectSyncPasscode() {
+            activeSyncCode = '';
+            document.getElementById('cloud-sync-passcode').value = '';
+            document.getElementById('disconnect-sync-btn').classList.add('hidden');
+            document.getElementById('active-sync-code-label').classList.add('hidden');
+            subscribeToCloudWorkspace();
+            showToast('Returned to personal device cloud workspace');
+        }
+
+        function forceCloudSync() {
+            pushStateToCloudNow();
+            showToast('Cloud synchronization triggered!');
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'surface-elevated px-4 py-3 rounded-2xl text-xs font-semibold flex items-center gap-2 shadow-lg border border-theme pointer-events-auto transition-all duration-300';
+            toast.innerHTML = `<span style="color: var(--accent-primary)">✦</span><span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 2600);
+        }
+
+        function setTheme(themeName, shouldSave = true) {
+            state.theme = themeName;
+            document.documentElement.setAttribute('data-theme', themeName);
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('surface-solid', 'font-bold');
+            });
+            const activeBtn = document.getElementById(`theme-btn-${themeName}`);
+            if (activeBtn) activeBtn.classList.add('surface-solid', 'font-bold');
+            if (shouldSave) saveState();
+        }
+
+        function getDefaultState() {
+            return {
+                studentName: 'Alex',
+                theme: 'cozy-light',
+                pomodoroSessionsToday: 3,
+                scratchpad: '• Ask Prof. Reyes about AVL Tree rotation edge cases\n• Bring student ID for library locker renewal\n• Group project sync at 4:00 PM on Discord',
+                subjects: [
+                    { id: 'subj-1', name: 'Data Structures', color: '#D97706' },
+                    { id: 'subj-2', name: 'Web Development', color: '#2563EB' },
+                    { id: 'subj-3', name: 'Computer Networks', color: '#059669' },
+                    { id: 'subj-4', name: 'General Education', color: '#7C3AED' },
+                    { id: 'subj-5', name: 'Personal Projects', color: '#DB2777' }
+                ],
+                notes: [
+                    {
+                        id: 'note-1',
+                        title: 'Binary Search Trees & AVL Rotations',
+                        subject: 'Data Structures',
+                        pinned: true,
+                        updatedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+                        content: `<h1>Binary Search Tree (BST) Fundamentals</h1><p>A <strong>Binary Search Tree</strong> is a node-based binary tree data structure which has the following properties:</p><ul><li><strong>BST Left Subtree Property</strong> : Contains only nodes with keys lesser than the parent node's key.</li><li><strong>BST Right Subtree Property</strong> : Contains only nodes with keys greater than the parent node's key.</li><li><strong>AVL Balance Factor</strong> : Height(Left Subtree) minus Height(Right Subtree), which must remain in {-1, 0, 1}.</li></ul><h2>Time Complexity Summary</h2><pre>Search  : O(log n) average | O(n) worst-case (skewed tree)\nInsert  : O(log n) average | O(n) worst-case\nDelete  : O(log n) average | O(n) worst-case</pre><blockquote>Pro-tip for the Midterm Exam: Always check the Balance Factor = height(left) - height(right).</blockquote><h3>Exam Review Checklist</h3><div class="note-check-item"><input type="checkbox" checked><span>Trace Left-Left (LL) and Right-Right (RR) single rotations</span></div><div class="note-check-item"><input type="checkbox"><span>Practice Left-Right (LR) double rotation on paper</span></div>`
+                    },
+                    {
+                        id: 'note-2',
+                        title: 'Modern CSS Architecture & DOM Essentials',
+                        subject: 'Web Development',
+                        pinned: true,
+                        updatedAt: new Date(Date.now() - 3600000 * 18).toISOString(),
+                        content: `<h1>Core Web Concepts</h1><ul><li><strong>DOM (Document Object Model)</strong> : Programming interface for web documents that represents the page as a tree of nodes.</li><li><strong>CSS Flexbox</strong> : One-dimensional layout method for arranging items in rows or columns.</li><li><strong>CSS Grid</strong> : Two-dimensional layout system for web pages.</li><li><strong>localStorage</strong> : Web Storage API that persists key-value data in the browser with no expiration date.</li></ul>`
+                    },
+                    {
+                        id: 'note-3',
+                        title: 'OSI Model 7 Layers & TCP/IP Handshake',
+                        subject: 'Computer Networks',
+                        pinned: false,
+                        updatedAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+                        content: `<h1>The 7 Layers of the OSI Model</h1><p>Mnemonic from Bottom (Layer 1) to Top (Layer 7): <mark>Please Do Not Throw Sausage Pizza Away</mark></p><ol><li><strong>Physical Layer</strong> : Transmits raw bit stream over the physical medium (cables, fiber).</li><li><strong>Data Link Layer</strong> : Node-to-node data transfer using MAC addresses and switches.</li><li><strong>Network Layer</strong> : Logical addressing (IP addresses) and packet routing.</li><li><strong>Transport Layer</strong> : End-to-end communication, TCP/UDP segments, and port numbers.</li></ol>`
+                    }
+                ],
+                assignments: [
+                    {
+                        id: 'assign-1',
+                        title: 'AVL Tree Balancing Lab Implementation',
+                        subject: 'Data Structures',
+                        dueDate: getRelativeDateStr(0),
+                        priority: 'High',
+                        status: 'In Progress',
+                        notes: 'Include unit tests for LR and RL rotations before pushing to GitHub.'
+                    },
+                    {
+                        id: 'assign-2',
+                        title: 'Responsive Portfolio & Notebook Wireframe',
+                        subject: 'Web Development',
+                        dueDate: getRelativeDateStr(2),
+                        priority: 'High',
+                        status: 'Pending',
+                        notes: 'Ensure mobile responsiveness and dark mode variables.'
+                    },
+                    {
+                        id: 'assign-3',
+                        title: 'Wireshark Packet Capture Lab Report',
+                        subject: 'Computer Networks',
+                        dueDate: getRelativeDateStr(5),
+                        priority: 'Medium',
+                        status: 'Pending',
+                        notes: 'Analyze 3-way TCP handshake and DNS query packets.'
+                    }
+                ],
+                flashcards: [
+                    {
+                        id: 'fc-1',
+                        subject: 'Data Structures',
+                        question: 'What is the worst-case time complexity of searching in an unbalanced Binary Search Tree (BST)?',
+                        answer: 'O(n) — occurs when the tree degenerates into a linked list (e.g., inserting already sorted elements).',
+                        hint: 'Think of a skewed tree that looks like a straight line.',
+                        status: 'mastered'
+                    },
+                    {
+                        id: 'fc-2',
+                        subject: 'Data Structures',
+                        question: 'Which data structure uses LIFO (Last-In, First-Out) ordering and powers function call execution?',
+                        answer: 'A Stack (used for the call stack, undo mechanisms, and depth-first traversal).',
+                        hint: 'Think of a stack of plates.',
+                        status: 'learning'
+                    },
+                    {
+                        id: 'fc-3',
+                        subject: 'Computer Networks',
+                        question: 'What are the 3 steps of the TCP Three-Way Handshake?',
+                        answer: '1. SYN (Client sends synchronize packet)\n2. SYN-ACK (Server acknowledges and synchronizes)\n3. ACK (Client acknowledges; connection established).',
+                        hint: 'SYN → SYN-ACK → ?',
+                        status: 'learning'
+                    },
+                    {
+                        id: 'fc-4',
+                        subject: 'Web Development',
+                        question: 'What is the difference between localStorage and sessionStorage in the browser?',
+                        answer: 'localStorage persists across browser restarts until explicitly cleared, while sessionStorage is cleared when the page session/tab ends.',
+                        hint: 'One survives closing the browser tab.',
+                        status: 'mastered'
+                    }
+                ],
+                schedule: [
+                    { id: 'sc-1', day: 'Mon', time: '08:30 AM - 10:00 AM', course: 'CS 201 — Data Structures', room: 'Lab 302', instructor: 'Prof. A. Reyes' },
+                    { id: 'sc-2', day: 'Mon', time: '01:00 PM - 02:30 PM', course: 'IT 204 — Web Systems', room: 'Rm 405', instructor: 'Prof. M. Santos' },
+                    { id: 'sc-3', day: 'Tue', time: '10:00 AM - 11:30 AM', course: 'NET 102 — Computer Networks', room: 'Cisco Lab 2', instructor: 'Engr. D. Cruz' },
+                    { id: 'sc-4', day: 'Wed', time: '08:30 AM - 10:00 AM', course: 'CS 201 — Data Structures', room: 'Lab 302', instructor: 'Prof. A. Reyes' },
+                    { id: 'sc-5', day: 'Thu', time: '10:00 AM - 11:30 AM', course: 'NET 102 — Computer Networks', room: 'Cisco Lab 2', instructor: 'Engr. D. Cruz' },
+                    { id: 'sc-6', day: 'Fri', time: '01:00 PM - 04:00 PM', course: 'IT 204 — Web Capstone Lab', room: 'Innovation Hub', instructor: 'Prof. M. Santos' }
+                ],
+                links: [
+                    { id: 'lk-1', title: 'University LMS Portal', category: 'Academic Portal', url: 'https://canvas.instructure.com' },
+                    { id: 'lk-2', title: 'MDN Web Docs', category: 'Reference Docs', url: 'https://developer.mozilla.org' },
+                    { id: 'lk-3', title: 'GitHub Student Pack', category: 'Developer Tools', url: 'https://education.github.com/pack' },
+                    { id: 'lk-4', title: 'Google Scholar', category: 'Research Papers', url: 'https://scholar.google.com' }
+                ],
+                grades: [
+                    { id: 'gr-1', course: 'CS 201 — Data Structures & Algorithms', units: 3, grade: 1.25 },
+                    { id: 'gr-2', course: 'IT 204 — Web Systems & Technologies', units: 3, grade: 1.00 },
+                    { id: 'gr-3', course: 'NET 102 — Computer Networking', units: 3, grade: 1.50 },
+                    { id: 'gr-4', course: 'GE 108 — Ethics & Modern Society', units: 3, grade: 1.25 }
+                ]
+            };
+        }
+
+        let state = loadState();
+        let currentView = 'dashboard';
+        let activeNoteId = state.notes.length > 0 ? state.notes[0].id : null;
+        let selectedSubjectFilter = 'all';
+        let pinnedOnlyFilter = false;
+        let deadlineStatusFilter = 'all';
+        let currentCardIndex = 0;
+        let stagedImportCards = [];
+
+        // Pomodoro state
+        let pomoTimeLeft = 25 * 60;
+        let pomoTotalTime = 25 * 60;
+        let pomoMode = 'focus';
+        let pomoInterval = null;
+        let pomoRunning = false;
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('lumina_academic_workspace_v1');
+                if (!raw) {
+                    const def = getDefaultState();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(def));
+                    return def;
+                }
+                return { ...getDefaultState(), ...JSON.parse(raw) };
+            } catch (e) {
+                return getDefaultState();
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                updateSidebarCounters();
+            } catch (e) {
+                console.error('Storage error:', e);
+            }
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'surface-elevated px-4 py-3 rounded-2xl text-xs font-semibold flex items-center gap-2 shadow-lg border border-theme pointer-events-auto transition-all duration-300';
+            toast.innerHTML = `<span style="color: var(--accent-primary)">✦</span><span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 2600);
+        }
+
+        function setTheme(themeName) {
+            state.theme = themeName;
+            document.documentElement.setAttribute('data-theme', themeName);
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('surface-solid', 'font-bold');
+            });
+            const activeBtn = document.getElementById(`theme-btn-${themeName}`);
+            if (activeBtn) activeBtn.classList.add('surface-solid', 'font-bold');
+            saveState();
+        }
+
+        function switchView(viewName) {
+            currentView = viewName;
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+            const target = document.getElementById(`view-${viewName}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${viewName}`);
+            if (activeNav) activeNav.classList.add('active');
+
+            const sidebar = document.getElementById('app-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 1024) {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+
+            if (viewName === 'dashboard') renderDashboard();
+            if (viewName === 'notes') renderNotesView();
+            if (viewName === 'deadlines') renderDeadlinesView();
+            if (viewName === 'flashcards') renderFlashcardsView();
+            if (viewName === 'schedule') renderScheduleView();
+            if (viewName === 'toolkit') renderToolkitView();
+        }
+
+        function toggleMobileSidebar() {
+            document.getElementById('app-sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('sidebar-backdrop').classList.toggle('hidden');
+        }
+
+        function updateSidebarCounters() {
+            document.getElementById('sidebar-notes-count').textContent = state.notes.length;
+            const pendingCount = state.assignments.filter(a => a.status !== 'Completed').length;
+            document.getElementById('sidebar-deadlines-count').textContent = pendingCount;
+            document.getElementById('sidebar-cards-count').textContent = state.flashcards.length;
+            document.getElementById('pomo-sessions-badge').textContent = state.pomodoroSessionsToday || 0;
+        }
+
+        function getSubjectColor(subjectName) {
+            const found = state.subjects.find(s => s.name === subjectName);
+            return found ? found.color : '#78716C';
+        }
+
+        function renderDashboard() {
+            const now = new Date();
+            const hrs = now.getHours();
+            const greeting = hrs < 12 ? 'Good morning' : hrs < 18 ? 'Good afternoon' : 'Good evening';
+
+            document.getElementById('dashboard-greeting').textContent = greeting;
+            document.getElementById('dashboard-student-name').textContent = state.studentName || 'Scholar';
+            document.getElementById('dashboard-current-date').textContent = now.toLocaleDateString('en-US', {
+                weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+            });
+
+            const activeAssign = state.assignments.filter(a => a.status !== 'Completed');
+            document.getElementById('stat-deadlines').textContent = activeAssign.length;
+            const completedAssign = state.assignments.filter(a => a.status === 'Completed').length;
+            document.getElementById('stat-deadlines-sub').textContent = `${completedAssign} completed so far`;
+
+            document.getElementById('stat-notes').textContent = state.notes.length;
+            document.getElementById('stat-notes-sub').textContent = `Across ${state.subjects.length} subjects`;
+
+            const masteredCards = state.flashcards.filter(c => c.status === 'mastered').length;
+            document.getElementById('stat-cards-dash').textContent = state.flashcards.length;
+            document.getElementById('stat-cards-sub').textContent = `${masteredCards} mastered • Click to study`;
+
+            const gwaInfo = computeGWAValue();
+            document.getElementById('stat-gwa').textContent = gwaInfo.gwa;
+            document.getElementById('stat-gwa-sub').textContent = `${gwaInfo.totalUnits} credit units`;
+
+            renderDashboardUrgentDeadlines();
+
+            const dayMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const todayCode = dayMap[now.getDay()] === 'Sun' ? 'Mon' : dayMap[now.getDay()];
+            const selector = document.getElementById('dashboard-day-selector');
+            if (!selector.dataset.initialized) {
+                selector.value = todayCode;
+                selector.dataset.initialized = 'true';
+            }
+            renderDashboardSchedule();
+            document.getElementById('dashboard-scratchpad').value = state.scratchpad || '';
+        }
+
+        function getDaysRemainingBadge(dueDateStr, status) {
+            if (status === 'Completed') return { text: 'Completed', classes: 'bg-emerald-500/15 text-emerald-600' };
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const due = new Date(dueDateStr + 'T00:00:00');
+            const diffDays = Math.round((due - today) / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) return { text: `Overdue (${Math.abs(diffDays)}d)`, classes: 'bg-red-500/15 text-red-600 font-semibold' };
+            if (diffDays === 0) return { text: 'Due Today', classes: 'bg-amber-500/20 text-amber-600 font-semibold' };
+            if (diffDays === 1) return { text: 'Due Tomorrow', classes: 'bg-amber-500/15 text-amber-600' };
+            return { text: `${diffDays} days left`, classes: 'bg-secondary-theme text-secondary-theme' };
+        }
+
+        function renderDashboardUrgentDeadlines() {
+            const container = document.getElementById('dashboard-urgent-list');
+            const sorted = [...state.assignments]
+                .filter(a => a.status !== 'Completed')
+                .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                .slice(0, 4);
+
+            if (sorted.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-muted-theme text-xs">🎉 All caught up! No pending deadlines.</div>`;
+                return;
+            }
+
+            container.innerHTML = sorted.map(item => {
+                const badge = getDaysRemainingBadge(item.dueDate, item.status);
+                const subjColor = getSubjectColor(item.subject);
+                return `
+                    <div class="p-3 rounded-2xl surface-solid flex items-center justify-between gap-3">
+                        <div class="flex items-start gap-2.5 min-w-0">
+                            <button onclick="quickCompleteAssignment('${item.id}')" class="mt-0.5 w-4 h-4 rounded-md border border-stone-400 hover:border-emerald-500 shrink-0" title="Mark Completed"></button>
+                            <div class="min-w-0">
+                                <p class="text-xs font-semibold truncate">${escapeHtml(item.title)}</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-[10px] font-medium px-2 py-0.5 rounded-full" style="background:${subjColor}20; color:${subjColor}">${escapeHtml(item.subject)}</span>
+                                    <span class="text-[10px] text-muted-theme font-mono">${item.priority}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-[11px] font-mono px-2.5 py-1 rounded-xl shrink-0 ${badge.classes}">${badge.text}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDashboardSchedule() {
+            const day = document.getElementById('dashboard-day-selector').value;
+            const list = document.getElementById('dashboard-schedule-list');
+            const classes = state.schedule.filter(s => s.day === day);
+
+            if (classes.length === 0) {
+                list.innerHTML = `<div class="text-center py-8 text-muted-theme text-xs">☕ No classes scheduled for ${day}.</div>`;
+                return;
+            }
+
+            list.innerHTML = classes.map(c => `
+                <div class="p-3 rounded-2xl surface-solid space-y-1">
+                    <div class="flex items-center justify-between text-[11px] font-mono text-muted-theme">
+                        <span>🕒 ${escapeHtml(c.time)}</span>
+                        <span class="px-2 py-0.5 rounded-md bg-secondary-theme text-primary-theme">${escapeHtml(c.room)}</span>
+                    </div>
+                    <p class="text-xs font-semibold">${escapeHtml(c.course)}</p>
+                    <p class="text-[11px] text-secondary-theme">${escapeHtml(c.instructor)}</p>
+                </div>
+            `).join('');
+        }
+
+        let quoteIdx = 0;
+        function cycleAcademicQuote() {
+            quoteIdx = (quoteIdx + 1) % ACADEMIC_QUOTES.length;
+            document.getElementById('dashboard-quote').textContent = ACADEMIC_QUOTES[quoteIdx];
+        }
+
+        function saveScratchpad() {
+            state.scratchpad = document.getElementById('dashboard-scratchpad').value;
+            saveState();
+            const status = document.getElementById('scratchpad-status');
+            status.textContent = 'Saved';
+        }
+
+        function clearScratchpad() {
+            document.getElementById('dashboard-scratchpad').value = '';
+            saveScratchpad();
+            showToast('Scratchpad cleared');
+        }
+
+        function convertScratchpadToNote() {
+            const text = document.getElementById('dashboard-scratchpad').value.trim();
+            if (!text) {
+                showToast('Write something in the scratchpad first!');
+                return;
+            }
+            const newNote = {
+                id: 'note-' + Date.now(),
+                title: 'Scratchpad Note — ' + new Date().toLocaleDateString(),
+                subject: state.subjects[0]?.name || 'General Education',
+                pinned: false,
+                updatedAt: new Date().toISOString(),
+                content: `<p>${escapeHtml(text).replace(/\n/g, '<br>')}</p>`
+            };
+            state.notes.unshift(newNote);
+            activeNoteId = newNote.id;
+            saveState();
+            switchView('notes');
+            showToast('Converted scratchpad to a new note!');
+        }
+
+        function renderNotesView() {
+            renderSubjectFilterTabs();
+            populateSubjectSelects();
+            renderNotesList();
+            loadActiveNoteIntoEditor();
+        }
+
+        function renderSubjectFilterTabs() {
+            const container = document.getElementById('notes-subject-tabs');
+            let html = `
+                <button onclick="setNotesSubjectFilter('all')" class="px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 transition ${selectedSubjectFilter === 'all' ? 'btn-accent' : 'hover:bg-secondary-theme'}">
+                    All Notes (${state.notes.length})
+                </button>
+            `;
+            state.subjects.forEach(subj => {
+                const isSelected = selectedSubjectFilter === subj.name;
+                html += `
+                    <button onclick="setNotesSubjectFilter('${escapeHtml(subj.name)}')" class="px-3 py-1.5 rounded-xl text-xs font-medium shrink-0 flex items-center gap-1.5 transition ${isSelected ? 'btn-accent font-semibold' : 'hover:bg-secondary-theme'}">
+                        <span class="w-2 h-2 rounded-full" style="background-color: ${subj.color}"></span>
+                        <span>${escapeHtml(subj.name)}</span>
+                    </button>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function setNotesSubjectFilter(subjName) {
+            selectedSubjectFilter = subjName;
+            renderSubjectFilterTabs();
+            renderNotesList();
+        }
+
+        function togglePinnedNotesFilter() {
+            pinnedOnlyFilter = !pinnedOnlyFilter;
+            const btn = document.getElementById('notes-pin-filter-btn');
+            btn.classList.toggle('badge-accent', pinnedOnlyFilter);
+            btn.classList.toggle('font-semibold', pinnedOnlyFilter);
+            renderNotesList();
+        }
+
+        function renderNotesList() {
+            const container = document.getElementById('notes-list-container');
+            const query = (document.getElementById('notes-search-input')?.value || '').toLowerCase().trim();
+
+            let filtered = state.notes.filter(n => {
+                if (selectedSubjectFilter !== 'all' && n.subject !== selectedSubjectFilter) return false;
+                if (pinnedOnlyFilter && !n.pinned) return false;
+                if (query) {
+                    const plainContent = n.content.replace(/<[^>]+>/g, ' ').toLowerCase();
+                    return n.title.toLowerCase().includes(query) || plainContent.includes(query) || n.subject.toLowerCase().includes(query);
+                }
+                return true;
+            });
+
+            filtered.sort((a, b) => {
+                if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+                return new Date(b.updatedAt) - new Date(a.updatedAt);
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="surface-card rounded-2xl p-6 text-center text-muted-theme text-xs">No notes match your filter.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(note => {
+                const isActive = note.id === activeNoteId;
+                const subjColor = getSubjectColor(note.subject);
+                const plainSnippet = note.content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 85);
+                const dateFormatted = new Date(note.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                return `
+                    <div onclick="selectNote('${note.id}')" class="p-4 rounded-2xl cursor-pointer transition border ${isActive ? 'surface-elevated border-amber-600/50 ring-2 ring-amber-500/20' : 'surface-card hover:translate-y-[-1px]'}">
+                        <div class="flex items-center justify-between gap-2 mb-1.5">
+                            <span class="text-[10px] font-semibold px-2.5 py-0.5 rounded-full" style="background:${subjColor}20; color:${subjColor}">${escapeHtml(note.subject)}</span>
+                            <div class="flex items-center gap-1.5 text-xs text-muted-theme font-mono">
+                                ${note.pinned ? '<span>📌</span>' : ''}
+                                <span>${dateFormatted}</span>
+                            </div>
+                        </div>
+                        <h4 class="font-semibold text-sm truncate">${escapeHtml(note.title || 'Untitled Note')}</h4>
+                        <p class="text-xs text-secondary-theme line-clamp-2 mt-1">${escapeHtml(plainSnippet || 'Empty note...')}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectNote(noteId) {
+            activeNoteId = noteId;
+            renderNotesList();
+            loadActiveNoteIntoEditor();
+        }
+
+        function loadActiveNoteIntoEditor() {
+            const note = state.notes.find(n => n.id === activeNoteId);
+            if (!note) {
+                if (state.notes.length > 0) {
+                    activeNoteId = state.notes[0].id;
+                    return loadActiveNoteIntoEditor();
+                }
+                document.getElementById('active-note-title').value = '';
+                document.getElementById('note-editor-content').innerHTML = '<p class="text-muted-theme">Create a note to begin writing...</p>';
+                return;
+            }
+
+            populateSubjectSelects();
+            document.getElementById('active-note-title').value = note.title;
+            document.getElementById('active-note-subject').value = note.subject;
+            document.getElementById('note-editor-content').innerHTML = note.content;
+            document.getElementById('active-note-timestamp').textContent = 'Edited ' + new Date(note.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const pinBtn = document.getElementById('active-note-pin-btn');
+            pinBtn.classList.toggle('badge-accent', !!note.pinned);
+            updateWordAndCharCount();
+        }
+
+        function createNewNote() {
+            const defaultSubject = selectedSubjectFilter !== 'all' ? selectedSubjectFilter : (state.subjects[0]?.name || 'General Education');
+            const newNote = {
+                id: 'note-' + Date.now(),
+                title: 'Untitled Study Note',
+                subject: defaultSubject,
+                pinned: false,
+                updatedAt: new Date().toISOString(),
+                content: `<h2>Lecture Summary</h2><p>Start typing your lecture notes, key concepts, or study checklist here...</p>`
+            };
+            state.notes.unshift(newNote);
+            activeNoteId = newNote.id;
+            saveState();
+            renderNotesView();
+            document.getElementById('active-note-title').focus();
+            showToast('New note created');
+        }
+
+        function createNewNoteAndOpen() {
+            switchView('notes');
+            createNewNote();
+        }
+
+        function updateActiveNoteMeta() {
+            const note = state.notes.find(n => n.id === activeNoteId);
+            if (!note) return;
+            note.title = document.getElementById('active-note-title').value;
+            note.subject = document.getElementById('active-note-subject').value;
+            note.updatedAt = new Date().toISOString();
+            saveState();
+            renderNotesList();
+        }
+
+        function handleNoteContentInput() {
+            const note = state.notes.find(n => n.id === activeNoteId);
+            if (!note) return;
+            note.content = document.getElementById('note-editor-content').innerHTML;
+            note.updatedAt = new Date().toISOString();
+            document.getElementById('active-note-timestamp').textContent = 'Saved just now';
+            updateWordAndCharCount();
+            saveState();
+            renderNotesList();
+        }
+
+        function toggleActiveNotePin() {
+            const note = state.notes.find(n => n.id === activeNoteId);
+            if (!note) return;
+            note.pinned = !note.pinned;
+            saveState();
+            loadActiveNoteIntoEditor();
+            renderNotesList();
+            showToast(note.pinned ? 'Note pinned to top' : 'Note unpinned');
+        }
+
+        function deleteActiveNote() {
+            if (!activeNoteId) return;
+            state.notes = state.notes.filter(n => n.id !== activeNoteId);
+            activeNoteId = state.notes[0]?.id || null;
+            saveState();
+            renderNotesView();
+            showToast('Note deleted');
+        }
+
+        function updateWordAndCharCount() {
+            const editor = document.getElementById('note-editor-content');
+            const text = (editor.innerText || '').trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            document.getElementById('note-word-count').textContent = `${words} words`;
+            document.getElementById('note-char-count').textContent = `${text.length} chars`;
+        }
+
+        function formatDoc(cmd, value = null) {
+            document.getElementById('note-editor-content').focus();
+            document.execCommand(cmd, false, value);
+            handleNoteContentInput();
+        }
+
+        function insertChecklistItem() {
+            const editor = document.getElementById('note-editor-content');
+            editor.focus();
+            document.execCommand('insertHTML', false, `<div class="note-check-item"><input type="checkbox"><span>To-do item...</span></div><p><br></p>`);
+            handleNoteContentInput();
+        }
+
+        function insertCodeBlock() {
+            const editor = document.getElementById('note-editor-content');
+            editor.focus();
+            const selection = window.getSelection().toString() || '// Write code snippet here...';
+            document.execCommand('insertHTML', false, `<pre><code>${escapeHtml(selection)}</code></pre><p><br></p>`);
+            handleNoteContentInput();
+        }
+
+        function insertHighlight() {
+            const editor = document.getElementById('note-editor-content');
+            editor.focus();
+            const selection = window.getSelection().toString() || 'important concept';
+            document.execCommand('insertHTML', false, `<mark>${escapeHtml(selection)}</mark>`);
+            handleNoteContentInput();
+        }
+
+        document.addEventListener('change', (e) => {
+            if (e.target.closest('#note-editor-content') && e.target.type === 'checkbox') {
+                if (e.target.checked) e.target.setAttribute('checked', 'checked');
+                else e.target.removeAttribute('checked');
+                handleNoteContentInput();
+            }
+        });
+
+        function exportActiveNote(format) {
+            const note = state.notes.find(n => n.id === activeNoteId);
+            if (!note) return;
+            const plainText = document.getElementById('note-editor-content').innerText;
+            const safeTitle = (note.title || 'study-note').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const content = format === 'md'
+                ? `# ${note.title}\n**Subject:** ${note.subject}\n\n---\n\n${plainText}`
+                : `${note.title.toUpperCase()}\nSubject: ${note.subject}\n====================\n\n${plainText}`;
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${safeTitle}.${format}`;
+            a.click();
+            showToast(`Exported note as .${format.toUpperCase()}`);
+        }
+
+        function copyNoteToClipboard() {
+            const text = document.getElementById('note-editor-content').innerText;
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+            showToast('Note content copied to clipboard!');
+        }
+
+        function openSubjectModal() {
+            renderSubjectsModalList();
+            openModal('modal-subjects');
+        }
+
+        function renderSubjectsModalList() {
+            const list = document.getElementById('subjects-modal-list');
+            list.innerHTML = state.subjects.map(s => `
+                <div class="flex items-center justify-between p-2.5 rounded-xl surface-solid">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-3.5 h-3.5 rounded-full" style="background:${s.color}"></span>
+                        <span class="text-xs font-semibold">${escapeHtml(s.name)}</span>
+                    </div>
+                    <button onclick="deleteSubject('${s.id}')" class="text-xs text-red-500 hover:underline">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function addSubject() {
+            const nameInput = document.getElementById('new-subject-name');
+            const colorInput = document.getElementById('new-subject-color');
+            const name = nameInput.value.trim();
+            if (!name) return;
+            state.subjects.push({ id: 'subj-' + Date.now(), name, color: colorInput.value });
+            nameInput.value = '';
+            saveState();
+            renderSubjectsModalList();
+            populateSubjectSelects();
+            renderNotesView();
+            showToast(`Added subject "${name}"`);
+        }
+
+        function deleteSubject(id) {
+            if (state.subjects.length <= 1) {
+                showToast('Keep at least one subject!');
+                return;
+            }
+            state.subjects = state.subjects.filter(s => s.id !== id);
+            saveState();
+            renderSubjectsModalList();
+            populateSubjectSelects();
+            renderNotesView();
+        }
+
+        function populateSubjectSelects() {
+            const selects = ['active-note-subject', 'assign-subject', 'fc-modal-subject', 'quick-fc-subject', 'import-target-subject'];
+            selects.forEach(selId => {
+                const el = document.getElementById(selId);
+                if (!el) return;
+                const currentVal = el.value;
+                el.innerHTML = state.subjects.map(s => `<option value="${escapeHtml(s.name)}">${escapeHtml(s.name)}</option>`).join('');
+                if (currentVal && state.subjects.some(s => s.name === currentVal)) {
+                    el.value = currentVal;
+                }
+            });
+
+            const filterSelects = ['dl-subject-filter', 'flashcard-deck-filter'];
+            filterSelects.forEach(selId => {
+                const el = document.getElementById(selId);
+                if (!el) return;
+                const currentVal = el.value || 'all';
+                el.innerHTML = `<option value="all">All Subjects</option>` +
+                    state.subjects.map(s => `<option value="${escapeHtml(s.name)}">${escapeHtml(s.name)}</option>`).join('');
+                el.value = currentVal;
+            });
+        }
+
+        function setDeadlineStatusFilter(status) {
+            deadlineStatusFilter = status;
+            ['all', 'Pending', 'In Progress', 'Completed'].forEach(st => {
+                const btn = document.getElementById(`dl-filter-${st}`);
+                if (!btn) return;
+                btn.className = st === status
+                    ? 'px-3 py-1.5 rounded-xl text-xs font-semibold btn-accent'
+                    : 'px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-secondary-theme';
+            });
+            renderDeadlinesView();
+        }
+
+        function renderDeadlinesView() {
+            populateSubjectSelects();
+            const subjFilter = document.getElementById('dl-subject-filter')?.value || 'all';
+            const container = document.getElementById('deadlines-list-container');
+
+            let list = state.assignments.filter(a => {
+                if (deadlineStatusFilter !== 'all' && a.status !== deadlineStatusFilter) return false;
+                if (subjFilter !== 'all' && a.subject !== subjFilter) return false;
+                return true;
+            });
+
+            list.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="col-span-full surface-card rounded-3xl p-10 text-center text-muted-theme"><p class="text-sm font-medium">No assignments found for this filter.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = list.map(item => {
+                const badge = getDaysRemainingBadge(item.dueDate, item.status);
+                const subjColor = getSubjectColor(item.subject);
+                const isDone = item.status === 'Completed';
+                const prioColors = {
+                    High: 'text-red-500 bg-red-500/10',
+                    Medium: 'text-amber-600 bg-amber-500/10',
+                    Low: 'text-emerald-600 bg-emerald-500/10'
+                };
+
+                return `
+                    <div class="surface-card rounded-3xl p-5 flex flex-col justify-between gap-4 ${isDone ? 'opacity-70' : ''}">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full" style="background:${subjColor}20; color:${subjColor}">${escapeHtml(item.subject)}</span>
+                                    <span class="text-[11px] font-mono px-2 py-0.5 rounded-lg ${prioColors[item.priority] || ''}">${item.priority}</span>
+                                </div>
+                                <span class="text-xs font-mono px-2.5 py-1 rounded-xl ${badge.classes}">${badge.text}</span>
+                            </div>
+                            <h4 class="font-semibold text-base ${isDone ? 'line-through text-muted-theme' : ''}">${escapeHtml(item.title)}</h4>
+                            ${item.notes ? `<p class="text-xs text-secondary-theme mt-1.5 leading-relaxed">${escapeHtml(item.notes)}</p>` : ''}
+                        </div>
+                        <div class="pt-3 border-t border-theme flex items-center justify-between gap-2">
+                            <span class="text-xs font-mono text-muted-theme">📅 Due: ${item.dueDate}</span>
+                            <div class="flex items-center gap-1.5">
+                                <select onchange="updateAssignmentStatus('${item.id}', this.value)" class="text-xs font-medium rounded-xl px-2.5 py-1 input-cozy">
+                                    <option value="Pending" ${item.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="In Progress" ${item.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                    <option value="Completed" ${item.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                </select>
+                                <button onclick="editAssignment('${item.id}')" class="p-1.5 rounded-xl hover:bg-secondary-theme text-xs" title="Edit">✏️</button>
+                                <button onclick="deleteAssignment('${item.id}')" class="p-1.5 rounded-xl hover:bg-red-500/10 text-red-500 text-xs" title="Delete">🗑</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openAssignmentModal(editItem = null) {
+            populateSubjectSelects();
+            if (editItem) {
+                document.getElementById('assignment-modal-title').textContent = 'Edit Assignment';
+                document.getElementById('assign-id').value = editItem.id;
+                document.getElementById('assign-title').value = editItem.title;
+                document.getElementById('assign-subject').value = editItem.subject;
+                document.getElementById('assign-priority').value = editItem.priority;
+                document.getElementById('assign-date').value = editItem.dueDate;
+                document.getElementById('assign-status').value = editItem.status;
+                document.getElementById('assign-notes').value = editItem.notes || '';
+            } else {
+                document.getElementById('assignment-modal-title').textContent = 'Add Assignment';
+                document.getElementById('assign-id').value = '';
+                document.getElementById('assign-title').value = '';
+                document.getElementById('assign-date').value = getRelativeDateStr(3);
+                document.getElementById('assign-status').value = 'Pending';
+                document.getElementById('assign-notes').value = '';
+            }
+            openModal('modal-assignment');
+        }
+
+        function saveAssignment() {
+            const id = document.getElementById('assign-id').value;
+            const title = document.getElementById('assign-title').value.trim();
+            const subject = document.getElementById('assign-subject').value;
+            const priority = document.getElementById('assign-priority').value;
+            const dueDate = document.getElementById('assign-date').value;
+            const status = document.getElementById('assign-status').value;
+            const notes = document.getElementById('assign-notes').value.trim();
+
+            if (!title || !dueDate) {
+                showToast('Please enter a title and due date');
+                return;
+            }
+
+            if (id) {
+                const idx = state.assignments.findIndex(a => a.id === id);
+                if (idx > -1) state.assignments[idx] = { id, title, subject, priority, dueDate, status, notes };
+            } else {
+                state.assignments.push({ id: 'assign-' + Date.now(), title, subject, priority, dueDate, status, notes });
+            }
+
+            saveState();
+            closeModal('modal-assignment');
+            renderDeadlinesView();
+            renderDashboard();
+            showToast('Assignment saved!');
+        }
+
+        function editAssignment(id) {
+            const item = state.assignments.find(a => a.id === id);
+            if (item) openAssignmentModal(item);
+        }
+
+        function updateAssignmentStatus(id, newStatus) {
+            const item = state.assignments.find(a => a.id === id);
+            if (item) {
+                item.status = newStatus;
+                saveState();
+                renderDeadlinesView();
+                renderDashboard();
+                showToast(`Task marked as ${newStatus}`);
+            }
+        }
+
+        function quickCompleteAssignment(id) {
+            updateAssignmentStatus(id, 'Completed');
+        }
+
+        function deleteAssignment(id) {
+            state.assignments = state.assignments.filter(a => a.id !== id);
+            saveState();
+            renderDeadlinesView();
+            renderDashboard();
+            showToast('Assignment deleted');
+        }
+
+        function getFilteredFlashcards() {
+            const deck = document.getElementById('flashcard-deck-filter')?.value || 'all';
+            const statusFilter = document.getElementById('flashcard-status-filter')?.value || 'all';
+            return state.flashcards.filter(c => {
+                if (deck !== 'all' && c.subject !== deck) return false;
+                if (statusFilter !== 'all' && c.status !== statusFilter) return false;
+                return true;
+            });
+        }
+
+        function changeFlashcardDeck() {
+            currentCardIndex = 0;
+            renderFlashcardsView();
+        }
+
+        function renderFlashcardsView() {
+            populateSubjectSelects();
+            const cards = getFilteredFlashcards();
+            const inner = document.getElementById('flashcard-3d-inner');
+            inner.classList.remove('is-flipped');
+
+            const allMastered = state.flashcards.filter(c => c.status === 'mastered').length;
+            const allLearning = state.flashcards.length - allMastered;
+            document.getElementById('fc-mastered-count').textContent = allMastered;
+            document.getElementById('fc-learning-count').textContent = allLearning;
+            document.getElementById('fc-list-total').textContent = cards.length;
+
+            const hintEl = document.getElementById('fc-front-hint');
+            const hintBtn = document.getElementById('fc-hint-btn');
+            hintEl.classList.add('hidden');
+
+            if (cards.length === 0) {
+                document.getElementById('fc-counter-label').textContent = '0 Cards in Filter';
+                document.getElementById('fc-front-subject').textContent = 'Empty Deck';
+                document.getElementById('fc-front-question').textContent = 'No flashcards match this filter yet. Use Quick-Add on the right or click "Import Flashcards"!';
+                document.getElementById('fc-back-answer').textContent = 'Create or import cards to start reviewing.';
+                hintBtn.classList.add('hidden');
+            } else {
+                if (currentCardIndex >= cards.length) currentCardIndex = 0;
+                if (currentCardIndex < 0) currentCardIndex = cards.length - 1;
+                const card = cards[currentCardIndex];
+                document.getElementById('fc-counter-label').textContent = `Card ${currentCardIndex + 1} of ${cards.length}`;
+                document.getElementById('fc-front-subject').textContent = card.subject;
+                document.getElementById('fc-front-question').textContent = card.question;
+                document.getElementById('fc-back-answer').textContent = card.answer;
+
+                if (card.hint) {
+                    hintEl.textContent = `💡 Hint: ${card.hint}`;
+                    hintBtn.classList.remove('hidden');
+                } else {
+                    hintBtn.classList.add('hidden');
+                }
+            }
+
+            const listEl = document.getElementById('flashcards-deck-list');
+            if (cards.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-muted-theme text-center py-6">No cards in this view.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = cards.map((c, idx) => `
+                <div onclick="jumpToFlashcard(${idx})" class="p-3 rounded-2xl cursor-pointer transition flex items-start justify-between gap-2 ${idx === currentCardIndex ? 'surface-elevated border border-amber-500/50' : 'surface-solid'}">
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full badge-accent">${escapeHtml(c.subject)}</span>
+                            <span class="text-[10px] font-mono ${c.status === 'mastered' ? 'text-emerald-600' : 'text-amber-600'}">
+                                ${c.status === 'mastered' ? '✓ Mastered' : '↻ Learning'}
+                            </span>
+                        </div>
+                        <p class="text-xs font-semibold truncate">${escapeHtml(c.question)}</p>
+                        <p class="text-[11px] text-secondary-theme truncate mt-0.5">${escapeHtml(c.answer)}</p>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="event.stopPropagation(); editFlashcard('${c.id}')" class="p-1 text-muted-theme hover:text-primary-theme text-xs" title="Edit Card">✏️</button>
+                        <button onclick="event.stopPropagation(); deleteFlashcard('${c.id}')" class="p-1 text-muted-theme hover:text-red-500 text-xs" title="Delete Card">🗑</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleFlashcardHint() {
+            const hintEl = document.getElementById('fc-front-hint');
+            hintEl.classList.toggle('hidden');
+        }
+
+        function flipCurrentFlashcard() {
+            document.getElementById('flashcard-3d-inner').classList.toggle('is-flipped');
+        }
+
+        function nextFlashcard() {
+            const cards = getFilteredFlashcards();
+            if (!cards.length) return;
+            currentCardIndex = (currentCardIndex + 1) % cards.length;
+            renderFlashcardsView();
+        }
+
+        function prevFlashcard() {
+            const cards = getFilteredFlashcards();
+            if (!cards.length) return;
+            currentCardIndex = (currentCardIndex - 1 + cards.length) % cards.length;
+            renderFlashcardsView();
+        }
+
+        function jumpToFlashcard(idx) {
+            currentCardIndex = idx;
+            renderFlashcardsView();
+        }
+
+        function markFlashcardStatus(status) {
+            const cards = getFilteredFlashcards();
+            if (!cards.length) return;
+            const current = cards[currentCardIndex];
+            current.status = status;
+            saveState();
+            nextFlashcard();
+        }
+
+        function shuffleFlashcards() {
+            for (let i = state.flashcards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [state.flashcards[i], state.flashcards[j]] = [state.flashcards[j], state.flashcards[i]];
+            }
+            currentCardIndex = 0;
+            saveState();
+            renderFlashcardsView();
+            showToast('Deck shuffled!');
+        }
+
+        function resetFlashcardMastery() {
+            state.flashcards.forEach(c => c.status = 'learning');
+            saveState();
+            renderFlashcardsView();
+            showToast('Deck mastery progress reset');
+        }
+
+        // Quick inline add card
+        function quickSaveFlashcard() {
+            const subject = document.getElementById('quick-fc-subject').value || state.subjects[0]?.name || 'General';
+            const question = document.getElementById('quick-fc-question').value.trim();
+            const answer = document.getElementById('quick-fc-answer').value.trim();
+            const hint = document.getElementById('quick-fc-hint').value.trim();
+
+            if (!question || !answer) {
+                showToast('Please enter both Front (Question) and Back (Answer)');
+                return;
+            }
+
+            state.flashcards.push({
+                id: 'fc-' + Date.now(),
+                subject,
+                question,
+                answer,
+                hint,
+                status: 'learning'
+            });
+
+            document.getElementById('quick-fc-question').value = '';
+            document.getElementById('quick-fc-answer').value = '';
+            document.getElementById('quick-fc-hint').value = '';
+
+            saveState();
+            currentCardIndex = getFilteredFlashcards().length - 1;
+            renderFlashcardsView();
+            showToast('Flashcard added to deck!');
+        }
+
+        function openFlashcardModal(cardToEdit = null) {
+            populateSubjectSelects();
+            if (cardToEdit) {
+                document.getElementById('fc-modal-title').textContent = 'Edit Flashcard';
+                document.getElementById('fc-modal-id').value = cardToEdit.id;
+                document.getElementById('fc-modal-subject').value = cardToEdit.subject;
+                document.getElementById('fc-modal-question').value = cardToEdit.question;
+                document.getElementById('fc-modal-answer').value = cardToEdit.answer;
+                document.getElementById('fc-modal-hint').value = cardToEdit.hint || '';
+            } else {
+                document.getElementById('fc-modal-title').textContent = 'Create Study Flashcard';
+                document.getElementById('fc-modal-id').value = '';
+                document.getElementById('fc-modal-question').value = '';
+                document.getElementById('fc-modal-answer').value = '';
+                document.getElementById('fc-modal-hint').value = '';
+            }
+            openModal('modal-flashcard');
+        }
+
+        function editFlashcard(id) {
+            const card = state.flashcards.find(c => c.id === id);
+            if (card) openFlashcardModal(card);
+        }
+
+        function saveFlashcardFromModal() {
+            const id = document.getElementById('fc-modal-id').value;
+            const subject = document.getElementById('fc-modal-subject').value;
+            const question = document.getElementById('fc-modal-question').value.trim();
+            const answer = document.getElementById('fc-modal-answer').value.trim();
+            const hint = document.getElementById('fc-modal-hint').value.trim();
+
+            if (!question || !answer) {
+                showToast('Please enter both question and answer');
+                return;
+            }
+
+            if (id) {
+                const idx = state.flashcards.findIndex(c => c.id === id);
+                if (idx > -1) {
+                    state.flashcards[idx] = { ...state.flashcards[idx], subject, question, answer, hint };
+                }
+            } else {
+                state.flashcards.push({
+                    id: 'fc-' + Date.now(),
+                    subject,
+                    question,
+                    answer,
+                    hint,
+                    status: 'learning'
+                });
+            }
+
+            saveState();
+            closeModal('modal-flashcard');
+            renderFlashcardsView();
+            showToast(id ? 'Flashcard updated!' : 'Flashcard created!');
+        }
+
+        function deleteFlashcard(id) {
+            state.flashcards = state.flashcards.filter(c => c.id !== id);
+            saveState();
+            renderFlashcardsView();
+            showToast('Flashcard removed');
+        }
+
+        function openFlashcardImportModal() {
+            populateSubjectSelects();
+            stagedImportCards = [];
+            document.getElementById('import-raw-text').value = '';
+            document.getElementById('import-file-status').textContent = '';
+
+            // Populate notes dropdown for "From My Notes" tab
+            const noteSel = document.getElementById('import-source-note');
+            noteSel.innerHTML = state.notes.map(n => `<option value="${n.id}">${escapeHtml(n.title)} (${escapeHtml(n.subject)})</option>`).join('');
+
+            switchImportTab('paste');
+            renderStagedImportPreview();
+            openModal('modal-flashcard-import');
+        }
+
+        function switchImportTab(tab) {
+            ['paste', 'file', 'notes'].forEach(t => {
+                document.getElementById(`import-pane-${t}`).classList.toggle('hidden', t !== tab);
+                const btn = document.getElementById(`import-tab-${t}`);
+                btn.className = t === tab
+                    ? 'px-3 py-1.5 rounded-xl text-xs font-semibold btn-accent'
+                    : 'px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-black/5';
+            });
+            if (tab === 'notes') {
+                extractCardsFromSelectedNote();
+            } else if (tab === 'paste') {
+                updateImportPreview();
+            }
+        }
+
+        function loadSampleImportText() {
+            const sample = [
+                'Big-O Notation\tMathematical notation that describes the limiting behavior of a function or algorithm complexity.',
+                'Binary Search - Search algorithm that finds the position of a target value within a sorted array in O(log n) time.',
+                'HTTP 404 : Client error response code indicating that the server cannot find the requested resource.',
+                'Encapsulation - Bundling of data with the methods that operate on that data inside a class.',
+                'DNS (Domain Name System)\tTranslates human-readable domain names (like google.com) into IP addresses.'
+            ].join('\n');
+            document.getElementById('import-raw-text').value = sample;
+            updateImportPreview();
+        }
+
+        function parseLineIntoCard(line, mode = 'auto') {
+            const trimmed = line.trim();
+            if (!trimmed) return null;
+
+            // Handle CSV quoted pair: "Question","Answer"
+            const csvMatch = trimmed.match(/^"([^"]+(?:""[^"]*)*)"\s*[,;\t]\s*"([^"]+(?:""[^"]*)*)"$/);
+            if (csvMatch) {
+                return {
+                    question: csvMatch[1].replace(/""/g, '"').trim(),
+                    answer: csvMatch[2].replace(/""/g, '"').trim()
+                };
+            }
+
+            if (mode === 'tab' || (mode === 'auto' && trimmed.includes('\t'))) {
+                const parts = trimmed.split('\t');
+                if (parts.length >= 2) {
+                    return { question: parts[0].trim(), answer: parts.slice(1).join(' ').trim() };
+                }
+            }
+            if (mode === 'dash' || (mode === 'auto' && /\s+[-–—]\s+/.test(trimmed))) {
+                const parts = trimmed.split(/\s+[-–—]\s+/);
+                if (parts.length >= 2) {
+                    return { question: parts[0].trim(), answer: parts.slice(1).join(' - ').trim() };
+                }
+            }
+            if (mode === 'colon' || (mode === 'auto' && /\s*:\s+/.test(trimmed))) {
+                const idx = trimmed.indexOf(':');
+                if (idx > 0 && idx < trimmed.length - 1) {
+                    return { question: trimmed.slice(0, idx).trim(), answer: trimmed.slice(idx + 1).trim() };
+                }
+            }
+            if (mode === 'comma' || (mode === 'auto' && trimmed.includes(','))) {
+                const idx = trimmed.indexOf(',');
+                if (idx > 0 && idx < trimmed.length - 1) {
+                    return { question: trimmed.slice(0, idx).trim(), answer: trimmed.slice(idx + 1).trim() };
+                }
+            }
+            return null;
+        }
+
+        function updateImportPreview() {
+            const raw = document.getElementById('import-raw-text').value.trim();
+            const sepMode = document.getElementById('import-term-sep').value;
+
+            if (!raw) {
+                stagedImportCards = [];
+                renderStagedImportPreview();
+                return;
+            }
+
+            // Check if user pasted a JSON array directly
+            if (raw.startsWith('[') || raw.startsWith('{')) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    const arr = Array.isArray(parsed) ? parsed : (parsed.flashcards || parsed.cards || []);
+                    stagedImportCards = arr
+                        .map(item => ({
+                            question: (item.question || item.front || item.term || '').trim(),
+                            answer: (item.answer || item.back || item.definition || '').trim(),
+                            hint: (item.hint || '').trim()
+                        }))
+                        .filter(c => c.question && c.answer);
+                    renderStagedImportPreview();
+                    return;
+                } catch (e) {
+                    // Fall back to line-by-line parsing
+                }
+            }
+
+            const lines = raw.split(/\r?\n/);
+            const parsedCards = [];
+            lines.forEach((line, idx) => {
+                // Skip typical CSV header row
+                if (idx === 0 && /^(question|front|term)\s*[,;\t:-]\s*(answer|back|definition)$/i.test(line.trim())) {
+                    return;
+                }
+                const pair = parseLineIntoCard(line, sepMode);
+                if (pair && pair.question && pair.answer) {
+                    parsedCards.push(pair);
+                }
+            });
+
+            stagedImportCards = parsedCards;
+            renderStagedImportPreview();
+        }
+
+        function handleFlashcardFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const statusEl = document.getElementById('import-file-status');
+            statusEl.textContent = `Reading "${file.name}"...`;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = (e.target.result || '').trim();
+                if (file.name.toLowerCase().endsWith('.json')) {
+                    try {
+                        const parsed = JSON.parse(content);
+                        const arr = Array.isArray(parsed) ? parsed : (parsed.flashcards || parsed.cards || []);
+                        stagedImportCards = arr
+                            .map(item => ({
+                                question: String(item.question || item.front || item.term || '').trim(),
+                                answer: String(item.answer || item.back || item.definition || '').trim(),
+                                hint: String(item.hint || '').trim()
+                            }))
+                            .filter(c => c.question && c.answer);
+                        statusEl.textContent = `✓ Loaded ${stagedImportCards.length} flashcards from ${file.name}`;
+                        renderStagedImportPreview();
+                        return;
+                    } catch (err) {
+                        statusEl.textContent = `Could not parse JSON file. Trying text parser...`;
+                    }
+                }
+
+                // Parse CSV / TSV / TXT
+                const lines = content.split(/\r?\n/);
+                const cards = [];
+                lines.forEach((line, idx) => {
+                    if (idx === 0 && /^(question|front|term)/i.test(line.trim())) return;
+                    const pair = parseLineIntoCard(line, 'auto');
+                    if (pair && pair.question && pair.answer) cards.push(pair);
+                });
+                stagedImportCards = cards;
+                statusEl.textContent = `✓ Extracted ${stagedImportCards.length} flashcards from ${file.name}`;
+                renderStagedImportPreview();
+            };
+            reader.readAsText(file);
+        }
+
+        function extractCardsFromSelectedNote() {
+            const noteId = document.getElementById('import-source-note').value;
+            const note = state.notes.find(n => n.id === noteId);
+            if (!note) {
+                stagedImportCards = [];
+                renderStagedImportPreview();
+                return;
+            }
+
+            // Set target subject to match the note's subject automatically
+            const targetSubjEl = document.getElementById('import-target-subject');
+            if (targetSubjEl && note.subject) targetSubjEl.value = note.subject;
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = note.content;
+            const extracted = [];
+
+            // Extract from list items and paragraphs containing " : " or " - " or bold terms
+            const blocks = tempDiv.querySelectorAll('li, p, div.note-check-item');
+            blocks.forEach(b => {
+                const text = (b.innerText || '').trim();
+                const pair = parseLineIntoCard(text, 'auto');
+                if (pair && pair.question && pair.answer) {
+                    extracted.push(pair);
+                } else {
+                    const strong = b.querySelector('strong, b');
+                    if (strong) {
+                        const term = strong.innerText.trim().replace(/[:\-–—]+$/, '');
+                        const rest = text.replace(strong.innerText, '').replace(/^[\s:\-–—]+/, '').trim();
+                        if (term && rest && rest.length > 2) {
+                            extracted.push({ question: term, answer: rest });
+                        }
+                    }
+                }
+            });
+
+            stagedImportCards = extracted;
+            renderStagedImportPreview();
+        }
+
+        function renderStagedImportPreview() {
+            document.getElementById('import-preview-count').textContent = stagedImportCards.length;
+            const listEl = document.getElementById('import-preview-list');
+
+            if (stagedImportCards.length === 0) {
+                listEl.innerHTML = `<p class="text-xs text-muted-theme text-center py-4">No valid cards detected yet. Use "Term - Definition" or "Term [Tab] Definition" format.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = stagedImportCards.map((c, i) => `
+                <div class="p-2.5 rounded-xl surface-solid flex items-start justify-between gap-3 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 flex-1">
+                        <div class="font-semibold text-primary-theme"><span class="text-muted-theme font-mono mr-1">${i + 1}.</span>${escapeHtml(c.question)}</div>
+                        <div class="text-secondary-theme">${escapeHtml(c.answer)}</div>
+                    </div>
+                    <button onclick="removeStagedCard(${i})" class="text-muted-theme hover:text-red-500">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function removeStagedCard(idx) {
+            stagedImportCards.splice(idx, 1);
+            renderStagedImportPreview();
+        }
+
+        function confirmFlashcardImport() {
+            if (stagedImportCards.length === 0) {
+                showToast('No flashcards to import yet!');
+                return;
+            }
+            const subject = document.getElementById('import-target-subject').value || state.subjects[0]?.name || 'General';
+            const count = stagedImportCards.length;
+
+            stagedImportCards.forEach((c, idx) => {
+                state.flashcards.push({
+                    id: 'fc-' + Date.now() + '-' + idx,
+                    subject,
+                    question: c.question,
+                    answer: c.answer,
+                    hint: c.hint || '',
+                    status: 'learning'
+                });
+            });
+
+            stagedImportCards = [];
+            saveState();
+            closeModal('modal-flashcard-import');
+            switchView('flashcards');
+            showToast(`Successfully imported ${count} flashcards into ${subject}!`);
+        }
+
+        function generateFlashcardsFromActiveNote() {
+            if (!activeNoteId) return;
+            openFlashcardImportModal();
+            switchImportTab('notes');
+            document.getElementById('import-source-note').value = activeNoteId;
+            extractCardsFromSelectedNote();
+        }
+
+        function exportFlashcardsDeck() {
+            const cards = getFilteredFlashcards();
+            if (cards.length === 0) {
+                showToast('No flashcards in current deck to export');
+                return;
+            }
+            const tsvLines = cards.map(c => `${c.question.replace(/\t|\n/g, ' ')}\t${c.answer.replace(/\t|\n/g, ' ')}`);
+            const blob = new Blob([tsvLines.join('\n')], { type: 'text/tab-separated-values;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `lumina-flashcards-${new Date().toISOString().split('T')[0]}.tsv`;
+            a.click();
+            showToast(`Exported ${cards.length} flashcards (.TSV for Quizlet/Anki)`);
+        }
+
+        // Keyboard navigation in Flashcards view
+        document.addEventListener('keydown', (e) => {
+            if (currentView !== 'flashcards') return;
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+            if (!document.getElementById('modal-flashcard').classList.contains('hidden')) return;
+            if (!document.getElementById('modal-flashcard-import').classList.contains('hidden')) return;
+
+            if (e.code === 'Space') {
+                e.preventDefault();
+                flipCurrentFlashcard();
+            } else if (e.code === 'ArrowRight') {
+                e.preventDefault();
+                nextFlashcard();
+            } else if (e.code === 'ArrowLeft') {
+                e.preventDefault();
+                prevFlashcard();
+            }
+        });
+
+        function renderScheduleView() {
+            const days = [
+                { code: 'Mon', label: 'Monday' },
+                { code: 'Tue', label: 'Tuesday' },
+                { code: 'Wed', label: 'Wednesday' },
+                { code: 'Thu', label: 'Thursday' },
+                { code: 'Fri', label: 'Friday' },
+                { code: 'Sat', label: 'Saturday' }
+            ];
+
+            const grid = document.getElementById('weekly-timetable-grid');
+            grid.innerHTML = days.map(d => {
+                const slots = state.schedule.filter(s => s.day === d.code);
+                return `
+                    <div class="surface-card rounded-3xl p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between pb-3 mb-3 border-b border-theme">
+                                <h4 class="font-serif font-semibold text-lg">${d.label}</h4>
+                                <span class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-secondary-theme text-secondary-theme">${slots.length} classes</span>
+                            </div>
+                            <div class="space-y-2.5">
+                                ${slots.length === 0 ? `<p class="text-xs text-muted-theme py-4 text-center italic">No classes scheduled</p>` : slots.map(s => `
+                                    <div class="p-3 rounded-2xl surface-solid group relative">
+                                        <button onclick="deleteScheduleItem('${s.id}')" class="absolute top-2.5 right-2.5 text-muted-theme hover:text-red-500 text-xs">✕</button>
+                                        <div class="text-[11px] font-mono text-amber-600 font-semibold">${escapeHtml(s.time)}</div>
+                                        <div class="text-xs font-bold mt-0.5 pr-5">${escapeHtml(s.course)}</div>
+                                        <div class="flex items-center justify-between text-[11px] text-secondary-theme mt-1.5">
+                                            <span>📍 ${escapeHtml(s.room)}</span>
+                                            <span>👤 ${escapeHtml(s.instructor)}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const linksGrid = document.getElementById('links-vault-grid');
+            linksGrid.innerHTML = state.links.map(lk => `
+                <div class="surface-card rounded-2xl p-4 flex flex-col justify-between">
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full badge-accent">${escapeHtml(lk.category)}</span>
+                        <button onclick="deleteResourceLink('${lk.id}')" class="text-muted-theme hover:text-red-500 text-xs">✕</button>
+                    </div>
+                    <div class="my-3">
+                        <h4 class="font-semibold text-sm">${escapeHtml(lk.title)}</h4>
+                        <p class="text-[11px] text-muted-theme truncate mt-0.5">${escapeHtml(lk.url)}</p>
+                    </div>
+                    <a href="${escapeHtml(lk.url)}" target="_blank" rel="noopener noreferrer" class="w-full py-2 rounded-xl bg-secondary-theme hover:opacity-85 text-xs font-semibold text-center block transition">
+                        Open Resource ↗
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function openScheduleModal() {
+            document.getElementById('sched-time').value = '';
+            document.getElementById('sched-course').value = '';
+            document.getElementById('sched-room').value = '';
+            document.getElementById('sched-instructor').value = '';
+            openModal('modal-schedule');
+        }
+
+        function saveScheduleItem() {
+            const day = document.getElementById('sched-day').value;
+            const time = document.getElementById('sched-time').value.trim();
+            const course = document.getElementById('sched-course').value.trim();
+            const room = document.getElementById('sched-room').value.trim() || 'TBA';
+            const instructor = document.getElementById('sched-instructor').value.trim() || 'Faculty';
+
+            if (!time || !course) {
+                showToast('Please enter time and course name');
+                return;
+            }
+            state.schedule.push({ id: 'sc-' + Date.now(), day, time, course, room, instructor });
+            saveState();
+            closeModal('modal-schedule');
+            renderScheduleView();
+            showToast('Class added to timetable!');
+        }
+
+        function deleteScheduleItem(id) {
+            state.schedule = state.schedule.filter(s => s.id !== id);
+            saveState();
+            renderScheduleView();
+            showToast('Class removed');
+        }
+
+        function openLinkModal() {
+            document.getElementById('link-title').value = '';
+            document.getElementById('link-category').value = '';
+            document.getElementById('link-url').value = '';
+            openModal('modal-link');
+        }
+
+        function saveResourceLink() {
+            const title = document.getElementById('link-title').value.trim();
+            const category = document.getElementById('link-category').value.trim() || 'Bookmark';
+            let url = document.getElementById('link-url').value.trim();
+            if (!title || !url) {
+                showToast('Please enter title and URL');
+                return;
+            }
+            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+            state.links.push({ id: 'lk-' + Date.now(), title, category, url });
+            saveState();
+            closeModal('modal-link');
+            renderScheduleView();
+            showToast('Resource bookmark saved!');
+        }
+
+        function deleteResourceLink(id) {
+            state.links = state.links.filter(l => l.id !== id);
+            saveState();
+            renderScheduleView();
+            showToast('Bookmark removed');
+        }
+
+        function computeGWAValue() {
+            let totalUnits = 0;
+            let weightedSum = 0;
+            state.grades.forEach(g => {
+                const u = parseFloat(g.units) || 0;
+                const gr = parseFloat(g.grade) || 0;
+                if (u > 0 && gr > 0) {
+                    totalUnits += u;
+                    weightedSum += (u * gr);
+                }
+            });
+            const gwa = totalUnits > 0 ? (weightedSum / totalUnits).toFixed(2) : '0.00';
+            return { gwa, totalUnits, count: state.grades.length };
+        }
+
+        function renderToolkitView() {
+            const tbody = document.getElementById('grade-calculator-rows');
+            tbody.innerHTML = state.grades.map(g => `
+                <tr>
+                    <td class="py-2.5 pr-3">
+                        <input type="text" value="${escapeHtml(g.course)}" oninput="updateGradeRow('${g.id}', 'course', this.value)" class="w-full rounded-xl px-3 py-1.5 text-xs font-medium input-cozy">
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <input type="number" step="0.5" min="0" max="12" value="${g.units}" oninput="updateGradeRow('${g.id}', 'units', this.value)" class="w-full rounded-xl px-3 py-1.5 text-xs font-mono input-cozy">
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <input type="number" step="0.05" min="1.0" max="5.0" value="${g.grade}" oninput="updateGradeRow('${g.id}', 'grade', this.value)" class="w-full rounded-xl px-3 py-1.5 text-xs font-mono font-semibold input-cozy">
+                    </td>
+                    <td class="py-2.5 pl-3 text-right">
+                        <button onclick="deleteGradeRow('${g.id}')" class="p-1.5 rounded-xl text-muted-theme hover:text-red-500">🗑</button>
+                    </td>
+                </tr>
+            `).join('');
+            updateGWADisplay();
+        }
+
+        function updateGradeRow(id, field, val) {
+            const row = state.grades.find(g => g.id === id);
+            if (!row) return;
+            row[field] = field === 'course' ? val : parseFloat(val) || 0;
+            saveState();
+            updateGWADisplay();
+        }
+
+        function addGradeRow() {
+            state.grades.push({ id: 'gr-' + Date.now(), course: 'New Course Subject', units: 3, grade: 1.25 });
+            saveState();
+            renderToolkitView();
+        }
+
+        function deleteGradeRow(id) {
+            state.grades = state.grades.filter(g => g.id !== id);
+            saveState();
+            renderToolkitView();
+        }
+
+        function updateGWADisplay() {
+            const info = computeGWAValue();
+            document.getElementById('calc-result-gwa').textContent = info.gwa;
+            document.getElementById('calc-total-courses').textContent = info.count;
+            document.getElementById('calc-total-units').textContent = info.totalUnits;
+
+            const num = parseFloat(info.gwa);
+            const badge = document.getElementById('calc-standing-badge');
+            if (num > 0 && num <= 1.45) badge.textContent = "🏅 University / President's Scholar";
+            else if (num <= 1.75) badge.textContent = "⭐ College / Dean's Lister";
+            else if (num <= 3.0) badge.textContent = "✓ Good Academic Standing";
+            else badge.textContent = "🎓 Keep Pushing Forward";
+        }
+
+        function playPomodoroChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.14);
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.14);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.14 + 0.9);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + i * 0.14);
+                    osc.stop(ctx.currentTime + i * 0.14 + 0.9);
+                });
+            } catch (e) {}
+        }
+
+        function setPomodoroMode(mode, minutes) {
+            pausePomodoro();
+            pomoMode = mode;
+            pomoTotalTime = minutes * 60;
+            pomoTimeLeft = pomoTotalTime;
+            const labels = { focus: '⏱ Focus Session', short: '☕ Short Break', long: '🌿 Long Rest' };
+            document.getElementById('pomo-mode-label').textContent = labels[mode];
+            ['focus', 'short', 'long'].forEach(m => {
+                document.getElementById(`pomo-tab-${m}`).className = m === mode
+                    ? 'py-1 rounded-lg surface-solid font-semibold'
+                    : 'py-1 rounded-lg text-secondary-theme';
+            });
+            updatePomodoroDisplay();
+        }
+
+        function updatePomodoroDisplay() {
+            const mins = String(Math.floor(pomoTimeLeft / 60)).padStart(2, '0');
+            const secs = String(pomoTimeLeft % 60).padStart(2, '0');
+            const formatted = `${mins}:${secs}`;
+            document.getElementById('pomo-timer-display').textContent = formatted;
+            document.getElementById('mobile-pomo-display').textContent = formatted;
+        }
+
+        function togglePomodoro() {
+            if (pomoRunning) pausePomodoro();
+            else startPomodoro();
+        }
+
+        function startPomodoro() {
+            pomoRunning = true;
+            document.getElementById('pomo-start-text').textContent = 'Pause';
+            pomoInterval = setInterval(() => {
+                if (pomoTimeLeft > 0) {
+                    pomoTimeLeft--;
+                    updatePomodoroDisplay();
+                } else {
+                    pausePomodoro();
+                    playPomodoroChime();
+                    if (pomoMode === 'focus') {
+                        state.pomodoroSessionsToday = (state.pomodoroSessionsToday || 0) + 1;
+                        saveState();
+                        if (currentView === 'dashboard') renderDashboard();
+                        showToast('Focus session complete! Take a well-deserved break.');
+                    } else {
+                        showToast('Break finished! Ready for another focus session?');
+                    }
+                    pomoTimeLeft = pomoTotalTime;
+                    updatePomodoroDisplay();
+                }
+            }, 1000);
+        }
+
+        function pausePomodoro() {
+            pomoRunning = false;
+            clearInterval(pomoInterval);
+            document.getElementById('pomo-start-text').textContent = 'Start';
+        }
+
+        function resetPomodoro() {
+            pausePomodoro();
+            pomoTimeLeft = pomoTotalTime;
+            updatePomodoroDisplay();
+        }
+
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+            }
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            }
+        }
+
+        function openBackupModal() {
+            document.getElementById('settings-student-name').value = state.studentName || 'Scholar';
+            openModal('modal-backup');
+        }
+
+        function saveStudentName() {
+            const val = document.getElementById('settings-student-name').value.trim();
+            if (val) {
+                state.studentName = val;
+                saveState();
+                renderDashboard();
+                closeModal('modal-backup');
+                showToast(`Welcome, ${val}!`);
+            }
+        }
+
+        function exportWorkspaceJSON() {
+            const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `lumina-workspace-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('Workspace backup exported as JSON!');
+        }
+
+        function importWorkspaceJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported && Array.isArray(imported.notes)) {
+                        state = { ...getDefaultState(), ...imported };
+                        activeNoteId = state.notes[0]?.id || null;
+                        saveState();
+                        setTheme(state.theme || 'cozy-light');
+                        switchView(currentView);
+                        closeModal('modal-backup');
+                        showToast('Workspace data restored successfully!');
+                    } else {
+                        showToast('Invalid backup JSON file format');
+                    }
+                } catch (err) {
+                    showToast('Could not parse JSON file');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetToSampleData() {
+            state = getDefaultState();
+            activeNoteId = state.notes[0].id;
+            saveState();
+            setTheme(state.theme);
+            switchView('dashboard');
+            closeModal('modal-backup');
+            showToast('Demo sample data restored!');
+        }
+
+        function escapeHtml(str) {
+            if (typeof str !== 'string') return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        Object.assign(window, {
+            toggleMobileSidebar,
+            switchView,
+            openBackupModal,
+            setTheme,
+            setPomodoroMode,
+            togglePomodoro,
+            resetPomodoro,
+            cycleAcademicQuote,
+            openFlashcardImportModal,
+            createNewNoteAndOpen,
+            openAssignmentModal,
+            renderDashboardSchedule,
+            saveScratchpad,
+            clearScratchpad,
+            convertScratchpadToNote,
+            generateFlashcardsFromActiveNote,
+            openSubjectModal,
+            createNewNote,
+            renderNotesList,
+            togglePinnedNotesFilter,
+            updateActiveNoteMeta,
+            toggleActiveNotePin,
+            exportActiveNote,
+            deleteActiveNote,
+            formatDoc,
+            insertChecklistItem,
+            insertCodeBlock,
+            insertHighlight,
+            handleNoteContentInput,
+            copyNoteToClipboard,
+            setDeadlineStatusFilter,
+            renderDeadlinesView,
+            openFlashcardModal,
+            exportFlashcardsDeck,
+            changeFlashcardDeck,
+            flipCurrentFlashcard,
+            toggleFlashcardHint,
+            prevFlashcard,
+            nextFlashcard,
+            shuffleFlashcards,
+            markFlashcardStatus,
+            quickSaveFlashcard,
+            resetFlashcardMastery,
+            openScheduleModal,
+            openLinkModal,
+            addGradeRow,
+            exportWorkspaceJSON,
+            importWorkspaceJSON,
+            closeModal,
+            saveFlashcardFromModal,
+            switchImportTab,
+            updateImportPreview,
+            loadSampleImportText,
+            handleFlashcardFileUpload,
+            extractCardsFromSelectedNote,
+            confirmFlashcardImport,
+            saveAssignment,
+            addSubject,
+            saveScheduleItem,
+            saveResourceLink,
+            saveStudentName,
+            resetToSampleData,
+            quickCompleteAssignment,
+            setNotesSubjectFilter,
+            selectNote,
+            deleteSubject,
+            updateAssignmentStatus,
+            editAssignment,
+            deleteAssignment,
+            jumpToFlashcard,
+            editFlashcard,
+            deleteFlashcard,
+            removeStagedCard,
+            deleteScheduleItem,
+            deleteResourceLink,
+            updateGradeRow,
+            deleteGradeRow,
+            connectSyncPasscode,
+            disconnectSyncPasscode,
+            forceCloudSync
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTheme(state.theme || 'cozy-light', false);
+            updateSidebarCounters();
+            renderDashboard();
+            initCloudWorkspace();
+        });
+    </script>
+</body>
+</html>
