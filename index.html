@@ -898,8 +898,11 @@
             <!-- Cross-Device Sync Room Code -->
             <div class="space-y-2 pt-2 border-t border-theme">
                 <label class="text-xs font-semibold block">🔗 Cross-Device Sync Passcode (Laptop ↔ Phone)</label>
+                <div id="sync-warning-banner" class="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-[11px] text-amber-700 leading-relaxed hidden">
+                    ⚠️ <strong>Local Browser Mode Active:</strong> Because Vercel only hosts static files, you need to paste a free Firebase Config in the box at the bottom of this window first so your Laptop and Phone have a shared cloud database to talk to!
+                </div>
                 <p class="text-[11px] text-secondary-theme leading-relaxed">
-                    Enter a unique secret passcode (e.g., <code>alex-study-2026</code>) on both your laptop and phone to share the exact same live cloud notebook in real time.
+                    Once your cloud database is connected, enter the same secret passcode (e.g., <code>alex-study-2026</code>) on both your laptop and phone to share the exact same live cloud notebook in real time.
                 </p>
                 <div class="flex gap-2">
                     <input type="text" id="cloud-sync-passcode" placeholder="e.g., my-secret-notebook-key" class="flex-1 rounded-xl px-3.5 py-2 text-xs font-mono input-cozy">
@@ -932,11 +935,20 @@
 
             <!-- Custom Firebase Config for Vercel / GitHub Pages -->
             <div class="pt-3 border-t border-theme space-y-2">
-                <label class="text-xs font-semibold block">🔥 Optional: Connect Your Free Firebase Cloud (For Vercel)</label>
-                <p class="text-[11px] text-secondary-theme leading-relaxed">
-                    By default on Vercel, your data saves automatically to your browser's local storage. To sync across devices, paste your free Firebase Web App config JSON object below:
-                </p>
-                <textarea id="custom-firebase-config" rows="3" placeholder='{"apiKey": "...", "projectId": "...", "appId": "..."}' class="w-full rounded-xl p-2.5 text-[11px] font-mono input-cozy resize-none"></textarea>
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-semibold block">🔥 Connect Free Firebase Cloud (Required for Laptop ↔ Phone Sync on Vercel)</label>
+                </div>
+                <details class="text-[11px] text-secondary-theme bg-secondary-theme p-3 rounded-xl cursor-pointer">
+                    <summary class="font-semibold text-primary-theme">📖 Click here for 2-minute beginner steps to get your free Firebase Config</summary>
+                    <ol class="list-decimal pl-4 mt-2 space-y-1.5 leading-relaxed">
+                        <li>Go to <a href="https://console.firebase.google.com/" target="_blank" class="underline font-semibold">console.firebase.google.com</a> and click <strong>Create a project</strong> (100% free, no credit card).</li>
+                        <li>Inside your project, click the <strong>Web icon (<code>&lt;/&gt;</code>)</strong> to add a web app, name it <code>Lumina</code>, and copy the <code>firebaseConfig = { ... }</code> code it shows you.</li>
+                        <li>In the left sidebar of Firebase, click <strong>Build → Authentication → Get Started</strong>, then click <strong>Anonymous</strong> and toggle <strong>Enable → Save</strong>.</li>
+                        <li>In the left sidebar of Firebase, click <strong>Build → Firestore Database → Create database</strong>, choose <strong>Start in test mode</strong>, and click <strong>Create</strong>.</li>
+                        <li>Paste your <code>firebaseConfig</code> right below and click <strong>Save & Connect Cloud</strong> on both your laptop and phone!</li>
+                    </ol>
+                </details>
+                <textarea id="custom-firebase-config" rows="3" placeholder='Paste your firebaseConfig here, e.g.: {"apiKey": "AIza...", "projectId": "my-notebook", "appId": "..."}' class="w-full rounded-xl p-2.5 text-[11px] font-mono input-cozy resize-none"></textarea>
                 <div class="flex justify-end gap-2">
                     <button onclick="clearCustomFirebaseConfig()" class="px-3 py-1.5 rounded-xl bg-secondary-theme text-xs font-medium">Use Local Only</button>
                     <button onclick="saveCustomFirebaseConfig()" class="px-3.5 py-1.5 rounded-xl btn-accent text-xs font-semibold">Save & Connect Cloud</button>
@@ -1203,7 +1215,11 @@
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         const STORAGE_KEY = 'lumina_academic_workspace_v2';
         const FIREBASE_CFG_KEY = 'lumina_custom_firebase_config';
 
@@ -1216,13 +1232,10 @@
             '"Understanding is deeper than knowledge." — Carl Sagan'
         ];
 
-        function getRelativeDateStr(offsetDays) {
+        function getRelativeDateStr(offsetDays = 0) {
             const d = new Date();
             d.setDate(d.getDate() + offsetDays);
-            const year = d.getFullYear();
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            return d.toISOString().split('T')[0];
         }
 
         function getDefaultState() {
@@ -1368,7 +1381,6 @@
         let app = null;
         let db = null;
         let auth = null;
-        let fbOps = null;
         let currentUser = null;
         let activeSyncCode = localStorage.getItem('lumina_sync_passcode') || '';
         let unsubscribeWorkspace = null;
@@ -1400,43 +1412,48 @@
             const colorMap = {
                 synced: 'bg-emerald-500',
                 syncing: 'bg-amber-500 animate-pulse',
-                local: 'bg-emerald-500',
+                local: 'bg-amber-500',
                 offline: 'bg-stone-400'
             };
             dots.forEach(d => {
                 if (!d) return;
-                d.className = `w-2.5 h-2.5 rounded-full ${colorMap[stateType] || 'bg-emerald-500'}`;
+                d.className = `w-2.5 h-2.5 rounded-full ${colorMap[stateType] || 'bg-amber-500'}`;
             });
             const sidebarText = document.getElementById('sidebar-cloud-text');
             const modalText = document.getElementById('modal-cloud-status');
             if (sidebarText) sidebarText.textContent = labelText;
             if (modalText) modalText.textContent = labelText;
+
+            const warnBanner = document.getElementById('sync-warning-banner');
+            if (warnBanner) {
+                warnBanner.classList.toggle('hidden', stateType === 'synced' || stateType === 'syncing');
+            }
         }
 
         function getActiveWorkspaceDocRef() {
-            if (!db || !currentUser || !fbOps) return null;
+            if (!db || !currentUser) return null;
             if (activeSyncCode) {
-                return fbOps.doc(db, 'artifacts', appId, 'public', 'data', 'syncedWorkspaces', activeSyncCode);
+                return doc(db, 'artifacts', appId, 'public', 'data', 'syncedWorkspaces', activeSyncCode);
             }
-            return fbOps.doc(db, 'artifacts', appId, 'users', currentUser.uid, 'workspace', 'main');
+            return doc(db, 'artifacts', appId, 'users', currentUser.uid, 'workspace', 'main');
         }
 
         async function initCloudWorkspace() {
             try {
-                const customCfgRaw = localStorage.getItem(FIREBASE_CFG_KEY);
-                const customInput = document.getElementById('custom-firebase-config');
-                if (customInput && customCfgRaw) customInput.value = customCfgRaw;
-
-                if (activeSyncCode) {
-                    const codeInput = document.getElementById('cloud-sync-passcode');
-                    if (codeInput) codeInput.value = activeSyncCode;
+                const syncInput = document.getElementById('cloud-sync-passcode');
+                if (syncInput && activeSyncCode) {
+                    syncInput.value = activeSyncCode;
                     document.getElementById('disconnect-sync-btn')?.classList.remove('hidden');
                     const label = document.getElementById('active-sync-code-label');
                     if (label) {
-                        label.textContent = `✓ Linked to shared sync room: "${activeSyncCode}"`;
+                        label.textContent = `✓ Sync Passcode set: "${activeSyncCode}"`;
                         label.classList.remove('hidden');
                     }
                 }
+
+                const customCfgRaw = localStorage.getItem(FIREBASE_CFG_KEY);
+                const customInput = document.getElementById('custom-firebase-config');
+                if (customInput && customCfgRaw) customInput.value = customCfgRaw;
 
                 let firebaseConfig = null;
                 if (customCfgRaw) {
@@ -1448,52 +1465,71 @@
                 }
 
                 if (!firebaseConfig || !firebaseConfig.apiKey) {
-                    setCloudStatusUI('local', 'Saved on Device ✓');
-                    const uidEl = document.getElementById('cloud-user-id');
-                    if (uidEl) uidEl.textContent = 'Local Browser Storage Mode (Auto-Saving)';
+                    setCloudStatusUI('local', 'Saved on Device (Local)');
+                    document.getElementById('cloud-user-id').textContent = 'Local Browser Mode — Add Firebase Config below to sync across devices';
                     return;
                 }
 
-                const [appMod, authMod, fsMod] = await Promise.all([
-                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
-                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"),
-                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
-                ]);
-
-                fbOps = {
-                    doc: fsMod.doc,
-                    setDoc: fsMod.setDoc,
-                    onSnapshot: fsMod.onSnapshot
-                };
-
-                app = appMod.initializeApp(firebaseConfig);
-                db = fsMod.getFirestore(app);
-                auth = authMod.getAuth(app);
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
 
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !customCfgRaw) {
-                    await authMod.signInWithCustomToken(auth, __initial_auth_token);
+                    await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
-                    await authMod.signInAnonymously(auth);
+                    await signInAnonymously(auth);
                 }
 
-                authMod.onAuthStateChanged(auth, (user) => {
+                onAuthStateChanged(auth, (user) => {
                     currentUser = user;
                     if (user) {
-                        const uidEl = document.getElementById('cloud-user-id');
-                        if (uidEl) uidEl.textContent = user.uid;
+                        document.getElementById('cloud-user-id').textContent = user.uid;
                         subscribeToCloudWorkspace();
                     }
                 });
             } catch (err) {
-                console.warn('Running in Local Storage mode:', err);
-                setCloudStatusUI('local', 'Saved on Device ✓');
-                const uidEl = document.getElementById('cloud-user-id');
-                if (uidEl) uidEl.textContent = 'Local Browser Storage Mode';
+                console.error('Cloud initialization error:', err);
+                setCloudStatusUI('local', 'Saved on Device (Local)');
+                document.getElementById('cloud-user-id').textContent = 'Cloud Error (' + (err.code || err.message) + ') — Using Local Storage';
             }
         }
 
+        function saveCustomFirebaseConfig() {
+            const raw = document.getElementById('custom-firebase-config').value.trim();
+            if (!raw) {
+                showToast('Paste your Firebase config JSON object first');
+                return;
+            }
+            try {
+                let cleaned = raw;
+                if (raw.includes('{') && raw.includes('}')) {
+                    cleaned = raw.substring(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
+                    cleaned = cleaned.replace(/\/\/.*$/gm, '');
+                    cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+                    cleaned = cleaned.replace(/,\s*}/g, '}');
+                }
+                const parsed = JSON.parse(cleaned);
+                if (!parsed.apiKey || !parsed.projectId) {
+                    showToast('Config must include apiKey and projectId');
+                    return;
+                }
+                localStorage.setItem(FIREBASE_CFG_KEY, JSON.stringify(parsed));
+                showToast('Firebase config saved! Connecting to cloud...');
+                setTimeout(() => location.reload(), 600);
+            } catch (e) {
+                showToast('Could not parse config. Copy the {...} block from Firebase.');
+            }
+        }
+
+        function clearCustomFirebaseConfig() {
+            localStorage.removeItem(FIREBASE_CFG_KEY);
+            document.getElementById('custom-firebase-config').value = '';
+            showToast('Switched to Local Browser Storage mode');
+            setTimeout(() => location.reload(), 500);
+        }
+
         function subscribeToCloudWorkspace() {
-            if (!currentUser || !db || !fbOps) return;
+            if (!currentUser || !db) return;
             if (unsubscribeWorkspace) {
                 unsubscribeWorkspace();
                 unsubscribeWorkspace = null;
@@ -1504,7 +1540,7 @@
 
             setCloudStatusUI('syncing', 'Syncing with Cloud...');
 
-            unsubscribeWorkspace = fbOps.onSnapshot(
+            unsubscribeWorkspace = onSnapshot(
                 docRef,
                 async (snapshot) => {
                     if (snapshot.exists()) {
@@ -1524,20 +1560,21 @@
                                 console.error('Error parsing cloud workspace:', parseErr);
                             }
                         }
-                        setCloudStatusUI('synced', activeSyncCode ? `Synced (${activeSyncCode})` : 'Cloud Synced ✓');
+                        setCloudStatusUI('synced', activeSyncCode ? `Cloud Synced (${activeSyncCode}) ✓` : 'Cloud Synced ✓');
                     } else {
                         await pushStateToCloudNow();
                     }
                 },
                 (error) => {
                     console.error('Firestore listener error:', error);
-                    setCloudStatusUI('local', 'Saved on Device ✓');
+                    setCloudStatusUI('offline', 'Firestore Rules Blocked / Offline');
+                    showToast('Cloud permission error: make sure Firestore is in Test Mode!');
                 }
             );
         }
 
         async function pushStateToCloudNow() {
-            if (!currentUser || !db || !fbOps) return;
+            if (!currentUser || !db) return;
             const docRef = getActiveWorkspaceDocRef();
             if (!docRef) return;
 
@@ -1545,49 +1582,17 @@
                 setCloudStatusUI('syncing', 'Saving to Cloud...');
                 const stamp = new Date().toISOString();
                 lastSavedStamp = stamp;
-                await fbOps.setDoc(docRef, {
+                await setDoc(docRef, {
                     workspaceJson: JSON.stringify(state),
                     studentName: state.studentName || 'Scholar',
                     updatedAt: stamp,
                     updatedBy: currentUser.uid
                 });
-                setCloudStatusUI('synced', activeSyncCode ? `Synced (${activeSyncCode})` : 'Cloud Synced ✓');
+                setCloudStatusUI('synced', activeSyncCode ? `Cloud Synced (${activeSyncCode}) ✓` : 'Cloud Synced ✓');
             } catch (err) {
                 console.error('Error saving to cloud:', err);
-                setCloudStatusUI('local', 'Saved on Device ✓');
+                setCloudStatusUI('offline', 'Sync Retry Pending');
             }
-        }
-
-        function saveCustomFirebaseConfig() {
-            const raw = document.getElementById('custom-firebase-config').value.trim();
-            if (!raw) {
-                showToast('Paste your Firebase config JSON object first');
-                return;
-            }
-            try {
-                let cleaned = raw;
-                if (raw.includes('{') && raw.includes('}')) {
-                    cleaned = raw.substring(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
-                    cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
-                }
-                const parsed = JSON.parse(cleaned);
-                if (!parsed.apiKey || !parsed.projectId) {
-                    showToast('Config must include apiKey and projectId');
-                    return;
-                }
-                localStorage.setItem(FIREBASE_CFG_KEY, JSON.stringify(parsed));
-                showToast('Firebase config saved! Reloading connection...');
-                setTimeout(() => location.reload(), 600);
-            } catch (e) {
-                showToast('Invalid JSON format. Make sure it is a valid JSON object.');
-            }
-        }
-
-        function clearCustomFirebaseConfig() {
-            localStorage.removeItem(FIREBASE_CFG_KEY);
-            document.getElementById('custom-firebase-config').value = '';
-            showToast('Switched to Local Browser Storage mode');
-            setTimeout(() => location.reload(), 500);
         }
 
         function saveState() {
@@ -1598,7 +1603,7 @@
             }
             updateSidebarCounters();
             if (!currentUser || !db) {
-                setCloudStatusUI('local', 'Saved on Device ✓');
+                setCloudStatusUI('local', 'Saved on Device (Local)');
                 return;
             }
             setCloudStatusUI('syncing', 'Saving changes...');
@@ -1630,6 +1635,11 @@
             const label = document.getElementById('active-sync-code-label');
             label.textContent = `✓ Linked to shared sync room: "${raw}"`;
             label.classList.remove('hidden');
+
+            if (!currentUser || !db) {
+                showToast('Passcode saved! Now paste your Firebase Config below to sync across devices.');
+                return;
+            }
             subscribeToCloudWorkspace();
             showToast(`Linked to Cloud Sync Code: ${raw}`);
         }
@@ -1640,7 +1650,7 @@
             document.getElementById('cloud-sync-passcode').value = '';
             document.getElementById('disconnect-sync-btn').classList.add('hidden');
             document.getElementById('active-sync-code-label').classList.add('hidden');
-            subscribeToCloudWorkspace();
+            if (currentUser && db) subscribeToCloudWorkspace();
             showToast('Returned to personal device workspace');
         }
 
@@ -1650,7 +1660,7 @@
                 pushStateToCloudNow();
                 showToast('Cloud synchronization triggered!');
             } else {
-                showToast('Saved to your browser storage!');
+                showToast('Saved locally! Add Firebase Config in Settings to sync across devices.');
             }
         }
 
@@ -3312,19 +3322,12 @@
             clearCustomFirebaseConfig
         });
 
-        // Initialize UI immediately so buttons, date, and sample data work right away
-        function bootstrapApp() {
+        window.addEventListener('DOMContentLoaded', () => {
             setTheme(state.theme || 'cozy-light', false);
             updateSidebarCounters();
             renderDashboard();
             initCloudWorkspace();
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', bootstrapApp);
-        } else {
-            bootstrapApp();
-        }
+        });
     </script>
 </body>
 </html>
