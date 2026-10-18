@@ -1203,11 +1203,7 @@
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script>
         const STORAGE_KEY = 'lumina_academic_workspace_v2';
         const FIREBASE_CFG_KEY = 'lumina_custom_firebase_config';
 
@@ -1219,147 +1215,14 @@
             '"Don\'t watch the clock; do what it does. Keep going." — Sam Levenson',
             '"Understanding is deeper than knowledge." — Carl Sagan'
         ];
-        let activeSyncCode = localStorage.getItem('lumina_sync_passcode') || '';
-        let unsubscribeWorkspace = null;
-        let saveDebounceTimeout = null;
-        let lastSavedStamp = '';
 
-        function loadInitialLocalState() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('lumina_academic_workspace_v1');
-                if (!raw) {
-                    const def = getDefaultState();
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(def));
-                    return def;
-                }
-                return { ...getDefaultState(), ...JSON.parse(raw) };
-            } catch (e) {
-                return getDefaultState();
-            }
-        }
-
-        let state = loadInitialLocalState();
-        let currentView = 'dashboard';
-        let activeNoteId = state.notes.length > 0 ? state.notes[0].id : null;
-        let selectedSubjectFilter = 'all';
-        let pinnedOnlyFilter = false;
-        let deadlineStatusFilter = 'all';
-        let currentCardIndex = 0;
-        let stagedImportCards = [];
-
-        // Pomodoro state
-        let pomoTimeLeft = 25 * 60;
-        let pomoTotalTime = 25 * 60;
-        let pomoMode = 'focus';
-        let pomoInterval = null;
-        let pomoRunning = false;
-
-        function setCloudStatusUI(stateType, labelText) {
-            const dots = [
-                document.getElementById('sidebar-cloud-dot'),
-                document.getElementById('mobile-cloud-dot'),
-                document.getElementById('modal-cloud-dot')
-            ];
-            const colorMap = {
-                synced: 'bg-emerald-500',
-                syncing: 'bg-amber-500 animate-pulse',
-                local: 'bg-emerald-500'
-            };
-            dots.forEach(d => {
-                if (!d) return;
-                d.className = `w-2.5 h-2.5 rounded-full ${colorMap[stateType] || 'bg-emerald-500'}`;
-            });
-            const sidebarText = document.getElementById('sidebar-cloud-text');
-            const modalText = document.getElementById('modal-cloud-status');
-            if (sidebarText) sidebarText.textContent = labelText;
-            if (modalText) modalText.textContent = labelText;
-        }
-
-        function getActiveWorkspaceDocRef() {
-            if (!db || !currentUser) return null;
-            if (activeSyncCode) {
-                return doc(db, 'artifacts', appId, 'public', 'data', 'syncedWorkspaces', activeSyncCode);
-            }
-            return doc(db, 'artifacts', appId, 'users', currentUser.uid, 'workspace', 'main');
-        }
-
-        async function initCloudWorkspace() {
-            try {
-                const customCfgRaw = localStorage.getItem(FIREBASE_CFG_KEY);
-                const customInput = document.getElementById('custom-firebase-config');
-                if (customInput && customCfgRaw) customInput.value = customCfgRaw;
-
-                let firebaseConfig = null;
-                if (customCfgRaw) {
-                    firebaseConfig = JSON.parse(customCfgRaw);
-                } else if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                    firebaseConfig = typeof __firebase_config === 'string'
-                        ? JSON.parse(__firebase_config)
-                        : __firebase_config;
-                }
-
-                if (!firebaseConfig || !firebaseConfig.apiKey) {
-                    setCloudStatusUI('local', 'Saved on Device ✓');
-                    document.getElementById('cloud-user-id').textContent = 'Local Browser Storage Mode (Auto-Saving)';
-                    return;
-                }
-
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !customCfgRaw) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                onAuthStateChanged(auth, (user) => {
-                    currentUser = user;
-                    if (user) {
-                        document.getElementById('cloud-user-id').textContent = user.uid;
-                        subscribeToCloudWorkspace();
-                    }
-                });
-            } catch (err) {
-                console.error('Cloud initialization error:', err);
-                setCloudStatusUI('local', 'Saved on Device ✓');
-                document.getElementById('cloud-user-id').textContent = 'Local Browser Storage Mode';
-            }
-        }
-
-        function saveCustomFirebaseConfig() {
-            const raw = document.getElementById('custom-firebase-config').value.trim();
-            if (!raw) {
-                showToast('Paste your Firebase config JSON object first');
-                return;
-            }
-            try {
-                // Support pasting either JSON or JS snippet containing apiKey
-                let cleaned = raw;
-                if (raw.includes('firebaseConfig') && raw.includes('{')) {
-                    cleaned = raw.substring(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
-                    // Convert unquoted JS keys to JSON keys if needed
-                    cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
-                }
-                const parsed = JSON.parse(cleaned);
-                if (!parsed.apiKey || !parsed.projectId) {
-                    showToast('Config must include apiKey and projectId');
-                    return;
-                }
-                localStorage.setItem(FIREBASE_CFG_KEY, JSON.stringify(parsed));
-                showToast('Firebase config saved! Reloading connection...');
-                setTimeout(() => location.reload(), 600);
-            } catch (e) {
-                showToast('Invalid JSON format. Make sure it is a valid JSON object.');
-            }
-        }
-
-        function clearCustomFirebaseConfig() {
-            localStorage.removeItem(FIREBASE_CFG_KEY);
-            document.getElementById('custom-firebase-config').value = '';
-            showToast('Switched to Local Browser Storage mode');
-            setTimeout(() => location.reload(), 500);
+        function getRelativeDateStr(offsetDays) {
+            const d = new Date();
+            d.setDate(d.getDate() + offsetDays);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         function getDefaultState() {
@@ -1487,17 +1350,32 @@
             };
         }
 
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('lumina_academic_workspace_v1');
+                if (!raw) {
+                    const def = getDefaultState();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(def));
+                    return def;
+                }
+                return { ...getDefaultState(), ...JSON.parse(raw) };
+            } catch (e) {
+                return getDefaultState();
+            }
+        }
+
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'lumina-academic-workspace';
         let app = null;
         let db = null;
         let auth = null;
+        let fbOps = null;
         let currentUser = null;
-        let activeSyncCode = '';
+        let activeSyncCode = localStorage.getItem('lumina_sync_passcode') || '';
         let unsubscribeWorkspace = null;
         let saveDebounceTimeout = null;
         let lastSavedStamp = '';
 
-        let state = getDefaultState();
+        let state = loadState();
         let currentView = 'dashboard';
         let activeNoteId = state.notes.length > 0 ? state.notes[0].id : null;
         let selectedSubjectFilter = 'all';
@@ -1522,11 +1400,12 @@
             const colorMap = {
                 synced: 'bg-emerald-500',
                 syncing: 'bg-amber-500 animate-pulse',
+                local: 'bg-emerald-500',
                 offline: 'bg-stone-400'
             };
             dots.forEach(d => {
                 if (!d) return;
-                d.className = `w-2.5 h-2.5 rounded-full ${colorMap[stateType] || 'bg-amber-500'}`;
+                d.className = `w-2.5 h-2.5 rounded-full ${colorMap[stateType] || 'bg-emerald-500'}`;
             });
             const sidebarText = document.getElementById('sidebar-cloud-text');
             const modalText = document.getElementById('modal-cloud-status');
@@ -1535,51 +1414,86 @@
         }
 
         function getActiveWorkspaceDocRef() {
-            if (!db || !currentUser) return null;
+            if (!db || !currentUser || !fbOps) return null;
             if (activeSyncCode) {
-                return doc(db, 'artifacts', appId, 'public', 'data', 'syncedWorkspaces', activeSyncCode);
+                return fbOps.doc(db, 'artifacts', appId, 'public', 'data', 'syncedWorkspaces', activeSyncCode);
             }
-            return doc(db, 'artifacts', appId, 'users', currentUser.uid, 'workspace', 'main');
+            return fbOps.doc(db, 'artifacts', appId, 'users', currentUser.uid, 'workspace', 'main');
         }
 
         async function initCloudWorkspace() {
             try {
-                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
-                    setCloudStatusUI('offline', 'Session Mode (Export JSON)');
-                    document.getElementById('cloud-user-id').textContent = 'No Cloud Config Detected';
+                const customCfgRaw = localStorage.getItem(FIREBASE_CFG_KEY);
+                const customInput = document.getElementById('custom-firebase-config');
+                if (customInput && customCfgRaw) customInput.value = customCfgRaw;
+
+                if (activeSyncCode) {
+                    const codeInput = document.getElementById('cloud-sync-passcode');
+                    if (codeInput) codeInput.value = activeSyncCode;
+                    document.getElementById('disconnect-sync-btn')?.classList.remove('hidden');
+                    const label = document.getElementById('active-sync-code-label');
+                    if (label) {
+                        label.textContent = `✓ Linked to shared sync room: "${activeSyncCode}"`;
+                        label.classList.remove('hidden');
+                    }
+                }
+
+                let firebaseConfig = null;
+                if (customCfgRaw) {
+                    firebaseConfig = JSON.parse(customCfgRaw);
+                } else if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    firebaseConfig = typeof __firebase_config === 'string'
+                        ? JSON.parse(__firebase_config)
+                        : __firebase_config;
+                }
+
+                if (!firebaseConfig || !firebaseConfig.apiKey) {
+                    setCloudStatusUI('local', 'Saved on Device ✓');
+                    const uidEl = document.getElementById('cloud-user-id');
+                    if (uidEl) uidEl.textContent = 'Local Browser Storage Mode (Auto-Saving)';
                     return;
                 }
 
-                const firebaseConfig = typeof __firebase_config === 'string'
-                    ? JSON.parse(__firebase_config)
-                    : __firebase_config;
+                const [appMod, authMod, fsMod] = await Promise.all([
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"),
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+                ]);
 
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
+                fbOps = {
+                    doc: fsMod.doc,
+                    setDoc: fsMod.setDoc,
+                    onSnapshot: fsMod.onSnapshot
+                };
 
-                // RULE 3: Authenticate FIRST before any Firestore operation
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                app = appMod.initializeApp(firebaseConfig);
+                db = fsMod.getFirestore(app);
+                auth = authMod.getAuth(app);
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !customCfgRaw) {
+                    await authMod.signInWithCustomToken(auth, __initial_auth_token);
                 } else {
-                    await signInAnonymously(auth);
+                    await authMod.signInAnonymously(auth);
                 }
 
-                onAuthStateChanged(auth, (user) => {
+                authMod.onAuthStateChanged(auth, (user) => {
                     currentUser = user;
                     if (user) {
-                        document.getElementById('cloud-user-id').textContent = user.uid;
+                        const uidEl = document.getElementById('cloud-user-id');
+                        if (uidEl) uidEl.textContent = user.uid;
                         subscribeToCloudWorkspace();
                     }
                 });
             } catch (err) {
-                console.error('Cloud initialization error:', err);
-                setCloudStatusUI('offline', 'Offline Session Mode');
+                console.warn('Running in Local Storage mode:', err);
+                setCloudStatusUI('local', 'Saved on Device ✓');
+                const uidEl = document.getElementById('cloud-user-id');
+                if (uidEl) uidEl.textContent = 'Local Browser Storage Mode';
             }
         }
 
         function subscribeToCloudWorkspace() {
-            if (!currentUser || !db) return;
+            if (!currentUser || !db || !fbOps) return;
             if (unsubscribeWorkspace) {
                 unsubscribeWorkspace();
                 unsubscribeWorkspace = null;
@@ -1590,7 +1504,7 @@
 
             setCloudStatusUI('syncing', 'Syncing with Cloud...');
 
-            unsubscribeWorkspace = onSnapshot(
+            unsubscribeWorkspace = fbOps.onSnapshot(
                 docRef,
                 async (snapshot) => {
                     if (snapshot.exists()) {
@@ -1599,6 +1513,7 @@
                             try {
                                 const parsed = JSON.parse(data.workspaceJson);
                                 state = { ...getDefaultState(), ...parsed };
+                                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                                 if (!activeNoteId || !state.notes.some(n => n.id === activeNoteId)) {
                                     activeNoteId = state.notes[0]?.id || null;
                                 }
@@ -1611,19 +1526,18 @@
                         }
                         setCloudStatusUI('synced', activeSyncCode ? `Synced (${activeSyncCode})` : 'Cloud Synced ✓');
                     } else {
-                        // First time for this user or sync code: push current state to cloud
                         await pushStateToCloudNow();
                     }
                 },
                 (error) => {
                     console.error('Firestore listener error:', error);
-                    setCloudStatusUI('offline', 'Cloud Sync Paused');
+                    setCloudStatusUI('local', 'Saved on Device ✓');
                 }
             );
         }
 
         async function pushStateToCloudNow() {
-            if (!currentUser || !db) return;
+            if (!currentUser || !db || !fbOps) return;
             const docRef = getActiveWorkspaceDocRef();
             if (!docRef) return;
 
@@ -1631,7 +1545,7 @@
                 setCloudStatusUI('syncing', 'Saving to Cloud...');
                 const stamp = new Date().toISOString();
                 lastSavedStamp = stamp;
-                await setDoc(docRef, {
+                await fbOps.setDoc(docRef, {
                     workspaceJson: JSON.stringify(state),
                     studentName: state.studentName || 'Scholar',
                     updatedAt: stamp,
@@ -1640,236 +1554,40 @@
                 setCloudStatusUI('synced', activeSyncCode ? `Synced (${activeSyncCode})` : 'Cloud Synced ✓');
             } catch (err) {
                 console.error('Error saving to cloud:', err);
-                setCloudStatusUI('offline', 'Sync Retry Pending');
+                setCloudStatusUI('local', 'Saved on Device ✓');
             }
         }
 
-        function saveState() {
-            updateSidebarCounters();
-            if (!currentUser || !db) return;
-            setCloudStatusUI('syncing', 'Saving changes...');
-            clearTimeout(saveDebounceTimeout);
-            saveDebounceTimeout = setTimeout(() => {
-                pushStateToCloudNow();
-            }, 400);
-        }
-
-        function refreshCurrentViewUI() {
-            if (currentView === 'dashboard') renderDashboard();
-            if (currentView === 'notes') renderNotesView();
-            if (currentView === 'deadlines') renderDeadlinesView();
-            if (currentView === 'flashcards') renderFlashcardsView();
-            if (currentView === 'schedule') renderScheduleView();
-            if (currentView === 'toolkit') renderToolkitView();
-        }
-
-        function connectSyncPasscode() {
-            const raw = document.getElementById('cloud-sync-passcode').value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-');
-            if (!raw || raw.length < 3) {
-                showToast('Enter a passcode with at least 3 characters');
+        function saveCustomFirebaseConfig() {
+            const raw = document.getElementById('custom-firebase-config').value.trim();
+            if (!raw) {
+                showToast('Paste your Firebase config JSON object first');
                 return;
             }
-            activeSyncCode = raw;
-            document.getElementById('cloud-sync-passcode').value = raw;
-            document.getElementById('disconnect-sync-btn').classList.remove('hidden');
-            const label = document.getElementById('active-sync-code-label');
-            label.textContent = `✓ Linked to shared sync room: "${raw}"`;
-            label.classList.remove('hidden');
-            subscribeToCloudWorkspace();
-            showToast(`Linked to Cloud Sync Code: ${raw}`);
-        }
-
-        function disconnectSyncPasscode() {
-            activeSyncCode = '';
-            document.getElementById('cloud-sync-passcode').value = '';
-            document.getElementById('disconnect-sync-btn').classList.add('hidden');
-            document.getElementById('active-sync-code-label').classList.add('hidden');
-            subscribeToCloudWorkspace();
-            showToast('Returned to personal device cloud workspace');
-        }
-
-        function forceCloudSync() {
-            pushStateToCloudNow();
-            showToast('Cloud synchronization triggered!');
-        }
-
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'surface-elevated px-4 py-3 rounded-2xl text-xs font-semibold flex items-center gap-2 shadow-lg border border-theme pointer-events-auto transition-all duration-300';
-            toast.innerHTML = `<span style="color: var(--accent-primary)">✦</span><span>${escapeHtml(message)}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(8px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 2600);
-        }
-
-        function setTheme(themeName, shouldSave = true) {
-            state.theme = themeName;
-            document.documentElement.setAttribute('data-theme', themeName);
-            document.querySelectorAll('.theme-btn').forEach(btn => {
-                btn.classList.remove('surface-solid', 'font-bold');
-            });
-            const activeBtn = document.getElementById(`theme-btn-${themeName}`);
-            if (activeBtn) activeBtn.classList.add('surface-solid', 'font-bold');
-            if (shouldSave) saveState();
-        }
-
-        function getDefaultState() {
-            return {
-                studentName: 'Alex',
-                theme: 'cozy-light',
-                pomodoroSessionsToday: 3,
-                scratchpad: '• Ask Prof. Reyes about AVL Tree rotation edge cases\n• Bring student ID for library locker renewal\n• Group project sync at 4:00 PM on Discord',
-                subjects: [
-                    { id: 'subj-1', name: 'Data Structures', color: '#D97706' },
-                    { id: 'subj-2', name: 'Web Development', color: '#2563EB' },
-                    { id: 'subj-3', name: 'Computer Networks', color: '#059669' },
-                    { id: 'subj-4', name: 'General Education', color: '#7C3AED' },
-                    { id: 'subj-5', name: 'Personal Projects', color: '#DB2777' }
-                ],
-                notes: [
-                    {
-                        id: 'note-1',
-                        title: 'Binary Search Trees & AVL Rotations',
-                        subject: 'Data Structures',
-                        pinned: true,
-                        updatedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-                        content: `<h1>Binary Search Tree (BST) Fundamentals</h1><p>A <strong>Binary Search Tree</strong> is a node-based binary tree data structure which has the following properties:</p><ul><li><strong>BST Left Subtree Property</strong> : Contains only nodes with keys lesser than the parent node's key.</li><li><strong>BST Right Subtree Property</strong> : Contains only nodes with keys greater than the parent node's key.</li><li><strong>AVL Balance Factor</strong> : Height(Left Subtree) minus Height(Right Subtree), which must remain in {-1, 0, 1}.</li></ul><h2>Time Complexity Summary</h2><pre>Search  : O(log n) average | O(n) worst-case (skewed tree)\nInsert  : O(log n) average | O(n) worst-case\nDelete  : O(log n) average | O(n) worst-case</pre><blockquote>Pro-tip for the Midterm Exam: Always check the Balance Factor = height(left) - height(right).</blockquote><h3>Exam Review Checklist</h3><div class="note-check-item"><input type="checkbox" checked><span>Trace Left-Left (LL) and Right-Right (RR) single rotations</span></div><div class="note-check-item"><input type="checkbox"><span>Practice Left-Right (LR) double rotation on paper</span></div>`
-                    },
-                    {
-                        id: 'note-2',
-                        title: 'Modern CSS Architecture & DOM Essentials',
-                        subject: 'Web Development',
-                        pinned: true,
-                        updatedAt: new Date(Date.now() - 3600000 * 18).toISOString(),
-                        content: `<h1>Core Web Concepts</h1><ul><li><strong>DOM (Document Object Model)</strong> : Programming interface for web documents that represents the page as a tree of nodes.</li><li><strong>CSS Flexbox</strong> : One-dimensional layout method for arranging items in rows or columns.</li><li><strong>CSS Grid</strong> : Two-dimensional layout system for web pages.</li><li><strong>localStorage</strong> : Web Storage API that persists key-value data in the browser with no expiration date.</li></ul>`
-                    },
-                    {
-                        id: 'note-3',
-                        title: 'OSI Model 7 Layers & TCP/IP Handshake',
-                        subject: 'Computer Networks',
-                        pinned: false,
-                        updatedAt: new Date(Date.now() - 3600000 * 48).toISOString(),
-                        content: `<h1>The 7 Layers of the OSI Model</h1><p>Mnemonic from Bottom (Layer 1) to Top (Layer 7): <mark>Please Do Not Throw Sausage Pizza Away</mark></p><ol><li><strong>Physical Layer</strong> : Transmits raw bit stream over the physical medium (cables, fiber).</li><li><strong>Data Link Layer</strong> : Node-to-node data transfer using MAC addresses and switches.</li><li><strong>Network Layer</strong> : Logical addressing (IP addresses) and packet routing.</li><li><strong>Transport Layer</strong> : End-to-end communication, TCP/UDP segments, and port numbers.</li></ol>`
-                    }
-                ],
-                assignments: [
-                    {
-                        id: 'assign-1',
-                        title: 'AVL Tree Balancing Lab Implementation',
-                        subject: 'Data Structures',
-                        dueDate: getRelativeDateStr(0),
-                        priority: 'High',
-                        status: 'In Progress',
-                        notes: 'Include unit tests for LR and RL rotations before pushing to GitHub.'
-                    },
-                    {
-                        id: 'assign-2',
-                        title: 'Responsive Portfolio & Notebook Wireframe',
-                        subject: 'Web Development',
-                        dueDate: getRelativeDateStr(2),
-                        priority: 'High',
-                        status: 'Pending',
-                        notes: 'Ensure mobile responsiveness and dark mode variables.'
-                    },
-                    {
-                        id: 'assign-3',
-                        title: 'Wireshark Packet Capture Lab Report',
-                        subject: 'Computer Networks',
-                        dueDate: getRelativeDateStr(5),
-                        priority: 'Medium',
-                        status: 'Pending',
-                        notes: 'Analyze 3-way TCP handshake and DNS query packets.'
-                    }
-                ],
-                flashcards: [
-                    {
-                        id: 'fc-1',
-                        subject: 'Data Structures',
-                        question: 'What is the worst-case time complexity of searching in an unbalanced Binary Search Tree (BST)?',
-                        answer: 'O(n) — occurs when the tree degenerates into a linked list (e.g., inserting already sorted elements).',
-                        hint: 'Think of a skewed tree that looks like a straight line.',
-                        status: 'mastered'
-                    },
-                    {
-                        id: 'fc-2',
-                        subject: 'Data Structures',
-                        question: 'Which data structure uses LIFO (Last-In, First-Out) ordering and powers function call execution?',
-                        answer: 'A Stack (used for the call stack, undo mechanisms, and depth-first traversal).',
-                        hint: 'Think of a stack of plates.',
-                        status: 'learning'
-                    },
-                    {
-                        id: 'fc-3',
-                        subject: 'Computer Networks',
-                        question: 'What are the 3 steps of the TCP Three-Way Handshake?',
-                        answer: '1. SYN (Client sends synchronize packet)\n2. SYN-ACK (Server acknowledges and synchronizes)\n3. ACK (Client acknowledges; connection established).',
-                        hint: 'SYN → SYN-ACK → ?',
-                        status: 'learning'
-                    },
-                    {
-                        id: 'fc-4',
-                        subject: 'Web Development',
-                        question: 'What is the difference between localStorage and sessionStorage in the browser?',
-                        answer: 'localStorage persists across browser restarts until explicitly cleared, while sessionStorage is cleared when the page session/tab ends.',
-                        hint: 'One survives closing the browser tab.',
-                        status: 'mastered'
-                    }
-                ],
-                schedule: [
-                    { id: 'sc-1', day: 'Mon', time: '08:30 AM - 10:00 AM', course: 'CS 201 — Data Structures', room: 'Lab 302', instructor: 'Prof. A. Reyes' },
-                    { id: 'sc-2', day: 'Mon', time: '01:00 PM - 02:30 PM', course: 'IT 204 — Web Systems', room: 'Rm 405', instructor: 'Prof. M. Santos' },
-                    { id: 'sc-3', day: 'Tue', time: '10:00 AM - 11:30 AM', course: 'NET 102 — Computer Networks', room: 'Cisco Lab 2', instructor: 'Engr. D. Cruz' },
-                    { id: 'sc-4', day: 'Wed', time: '08:30 AM - 10:00 AM', course: 'CS 201 — Data Structures', room: 'Lab 302', instructor: 'Prof. A. Reyes' },
-                    { id: 'sc-5', day: 'Thu', time: '10:00 AM - 11:30 AM', course: 'NET 102 — Computer Networks', room: 'Cisco Lab 2', instructor: 'Engr. D. Cruz' },
-                    { id: 'sc-6', day: 'Fri', time: '01:00 PM - 04:00 PM', course: 'IT 204 — Web Capstone Lab', room: 'Innovation Hub', instructor: 'Prof. M. Santos' }
-                ],
-                links: [
-                    { id: 'lk-1', title: 'University LMS Portal', category: 'Academic Portal', url: 'https://canvas.instructure.com' },
-                    { id: 'lk-2', title: 'MDN Web Docs', category: 'Reference Docs', url: 'https://developer.mozilla.org' },
-                    { id: 'lk-3', title: 'GitHub Student Pack', category: 'Developer Tools', url: 'https://education.github.com/pack' },
-                    { id: 'lk-4', title: 'Google Scholar', category: 'Research Papers', url: 'https://scholar.google.com' }
-                ],
-                grades: [
-                    { id: 'gr-1', course: 'CS 201 — Data Structures & Algorithms', units: 3, grade: 1.25 },
-                    { id: 'gr-2', course: 'IT 204 — Web Systems & Technologies', units: 3, grade: 1.00 },
-                    { id: 'gr-3', course: 'NET 102 — Computer Networking', units: 3, grade: 1.50 },
-                    { id: 'gr-4', course: 'GE 108 — Ethics & Modern Society', units: 3, grade: 1.25 }
-                ]
-            };
-        }
-
-        let state = loadState();
-        let currentView = 'dashboard';
-        let activeNoteId = state.notes.length > 0 ? state.notes[0].id : null;
-        let selectedSubjectFilter = 'all';
-        let pinnedOnlyFilter = false;
-        let deadlineStatusFilter = 'all';
-        let currentCardIndex = 0;
-        let stagedImportCards = [];
-
-        // Pomodoro state
-        let pomoTimeLeft = 25 * 60;
-        let pomoTotalTime = 25 * 60;
-        let pomoMode = 'focus';
-        let pomoInterval = null;
-        let pomoRunning = false;
-
-        function loadState() {
             try {
-                const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('lumina_academic_workspace_v1');
-                if (!raw) {
-                    const def = getDefaultState();
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(def));
-                    return def;
+                let cleaned = raw;
+                if (raw.includes('{') && raw.includes('}')) {
+                    cleaned = raw.substring(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
+                    cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
                 }
-                return { ...getDefaultState(), ...JSON.parse(raw) };
+                const parsed = JSON.parse(cleaned);
+                if (!parsed.apiKey || !parsed.projectId) {
+                    showToast('Config must include apiKey and projectId');
+                    return;
+                }
+                localStorage.setItem(FIREBASE_CFG_KEY, JSON.stringify(parsed));
+                showToast('Firebase config saved! Reloading connection...');
+                setTimeout(() => location.reload(), 600);
             } catch (e) {
-                return getDefaultState();
+                showToast('Invalid JSON format. Make sure it is a valid JSON object.');
             }
+        }
+
+        function clearCustomFirebaseConfig() {
+            localStorage.removeItem(FIREBASE_CFG_KEY);
+            document.getElementById('custom-firebase-config').value = '';
+            showToast('Switched to Local Browser Storage mode');
+            setTimeout(() => location.reload(), 500);
         }
 
         function saveState() {
@@ -3594,12 +3312,19 @@
             clearCustomFirebaseConfig
         });
 
-        window.addEventListener('DOMContentLoaded', () => {
+        // Initialize UI immediately so buttons, date, and sample data work right away
+        function bootstrapApp() {
             setTheme(state.theme || 'cozy-light', false);
             updateSidebarCounters();
             renderDashboard();
             initCloudWorkspace();
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bootstrapApp);
+        } else {
+            bootstrapApp();
+        }
     </script>
 </body>
 </html>
